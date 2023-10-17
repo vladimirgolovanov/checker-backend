@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os/exec"
 	"strings"
-	"time"
 )
 
 type RuDomainChecker struct{}
@@ -14,9 +13,6 @@ func (i *RuDomainChecker) GetId() int {
 }
 
 func (i *RuDomainChecker) Check(name string) bool {
-	time.Sleep(5 * time.Second)
-	return false
-
 	domainName := name + ".ru"
 	cmd := exec.Command("whois", domainName)
 

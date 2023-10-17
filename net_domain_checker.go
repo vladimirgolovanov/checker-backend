@@ -13,7 +13,6 @@ func (i *NetDomainChecker) GetId() int {
 }
 
 func (i *NetDomainChecker) Check(name string) bool {
-	return true
 	domainName := name + ".net"
 	cmd := exec.Command("whois", domainName)
 

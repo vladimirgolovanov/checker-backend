@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"sync"
-	"time"
 )
 
 type Request struct {
@@ -27,16 +26,13 @@ func main() {
 func checkNames(w http.ResponseWriter, r *http.Request) {
 	services := []Checker{
 		&InstagramChecker{}, // 0
-		&SnapchatChecker{},  // 6
 		&ComDomainChecker{}, // 1
 		&RuDomainChecker{},  // 2
 		&NetDomainChecker{}, // 3
-		&IoDomainChecker{},
-		&GithubChecker{},
+		&IoDomainChecker{},  // 4
+		&SnapchatChecker{},  // 6
+		&GithubChecker{},    // 8
 	}
-
-	//log.Println("r.URL.Path")
-	//log.Println(r.URL.Path)
 
 	if r.Method != http.MethodPost {
 		http.Error(w, "Only POST requests are allowed", http.StatusMethodNotAllowed)
@@ -51,8 +47,6 @@ func checkNames(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	//log.Println(requestData.Name)
-	//log.Println(requestData.Namespaces)
 	name := requestData.Name
 	var filteredServices []Checker
 
@@ -64,8 +58,6 @@ func checkNames(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-
-	//log.Println(filteredServices)
 
 	var wg = sync.WaitGroup{}
 
@@ -85,17 +77,10 @@ func checkNames(w http.ResponseWriter, r *http.Request) {
 		}()
 	}
 
-	timeout := time.After(2 * time.Second)
-
 	go func() {
 		for {
-			select {
-			case result := <-ch:
-				results = append(results, result)
-				log.Println("new results")
-			case <-timeout:
-				close(ch)
-			}
+			result := <-ch
+			results = append(results, result)
 		}
 	}()
 
@@ -112,19 +97,3 @@ func checkNames(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(responseJSON)
 }
-
-//func responseResults(w http.ResponseWriter, results []Namespaces) {
-//	log.Println(len(results))
-//
-//	responseJSON, err := json.Marshal(results)
-//	if err != nil {
-//		http.Error(w, "Failed to serialize response", http.StatusInternalServerError)
-//		return
-//	}
-//
-//	w.Header().Set("Content-Type", "application/json")
-//	w.WriteHeader(http.StatusOK)
-//	w.Write(responseJSON)
-//
-//	log.Println(responseJSON)
-//}

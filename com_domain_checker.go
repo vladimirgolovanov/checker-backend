@@ -13,7 +13,6 @@ func (i *ComDomainChecker) GetId() int {
 }
 
 func (i *ComDomainChecker) Check(name string) bool {
-	return true
 	domainName := name + ".com"
 	cmd := exec.Command("whois", domainName)
 
@@ -27,8 +26,4 @@ func (i *ComDomainChecker) Check(name string) bool {
 	}
 
 	return false
-
-	//fmt.Println("Результат whois для домена", domain_name, ":\n", string(output))
-
-	//return true
 }
