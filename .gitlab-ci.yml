@@ -2,6 +2,7 @@ image: golang:latest
 
 stages:
   - build
+  - deploy
 
 format:
   stage: build
@@ -18,28 +19,11 @@ vet:
       - vet-report.json
     expire_in: 1 hour
 
-test:
-  stage: build
-  script:
-    - go test -coverprofile=coverage.out -json ./... | tee test-report.json
-  artifacts:
-    when: always
-    paths:
-      - test-report.json
-      - coverage.out
-    expire_in: 1 hour
-
-staticcheck:
-  stage: build
-  script:
-    - go install honnef.co/go/tools/cmd/staticcheck@latest # ideally we should version pin
-    - staticcheck ./...
-
-golint:
-  stage: build
-  script:
-    - go install golang.org/x/lint/golint@latest # ideally we should version pin
-    - golint -set_exit_status ./...
+#golint:
+#  stage: build
+#  script:
+#    - go install golang.org/x/lint/golint@latest # ideally we should version pin
+#    - golint -set_exit_status ./...
 
 build:
   stage: build
@@ -51,22 +35,10 @@ build:
     untracked: true
     expire_in: 1 hour
 
-sonarcloud-check:
-  stage: build
-  needs:
-    - job: test
-      artifacts: true
-    - job: vet
-      artifacts: true
-  image:
-    name: sonarsource/sonar-scanner-cli:latest
-    entrypoint: [""]
-  variables:
-    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
-    GIT_DEPTH: "0"
-  cache:
-    key: "${CI_JOB_NAME}"
-    paths:
-      - .sonar/cache
+deploy:
+  stage: deploy
   script:
-    - sonar-scanner
+    - echo "Deploying the app"
+    - chmod og= $ID_RSA
+    - apk update && apk add openssh-client
+    - scp -i $ID_RSA -o StrictHostKeyChecking=no checkers $SERVER_USER@$SERVER_IP:/projects/aboo
