@@ -20,7 +20,7 @@ type Namespaces struct {
 
 func main() {
 	http.HandleFunc("/", checkNames)
-	log.Fatal(http.ListenAndServe("0.0.0.0:8080", nil))
+	log.Fatal(http.ListenAndServe("localhost:8080", nil))
 }
 
 func checkNames(w http.ResponseWriter, r *http.Request) {
