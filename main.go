@@ -20,16 +20,17 @@ type Namespaces struct {
 
 func main() {
 	http.HandleFunc("/", checkNames)
-	log.Fatal(http.ListenAndServe("localhost:8080", nil))
+	log.Fatal(http.ListenAndServe("0.0.0.0:8080", nil))
 }
 
 func checkNames(w http.ResponseWriter, r *http.Request) {
 	services := []Checker{
-		&InstagramChecker{}, // 0
+		//&InstagramChecker{}, // 0
 		&ComDomainChecker{}, // 1
 		&RuDomainChecker{},  // 2
 		&NetDomainChecker{}, // 3
 		&IoDomainChecker{},  // 4
+		&TiktokChecker{},    // 5
 		&SnapchatChecker{},  // 6
 		&GithubChecker{},    // 8
 	}
