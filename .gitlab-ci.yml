@@ -4,41 +4,31 @@ stages:
   - build
   - deploy
 
-format:
-  stage: build
-  script:
-    - test -z "$(gofmt -l ./)"
-
-vet:
-  stage: build
-  script:
-    - go vet -json ./... | tee vet-report.json
-  artifacts:
-    when: always
-    paths:
-      - vet-report.json
-    expire_in: 1 hour
-
-#golint:
-#  stage: build
-#  script:
-#    - go install golang.org/x/lint/golint@latest # ideally we should version pin
-#    - golint -set_exit_status ./...
-
 build:
   stage: build
+  services:
+    - docker:dind
   script:
-    - go build ./...
-  artifacts:
-    # instead of manually adding i.e. the built binaries, we can instead just
-    # grab anything not tracked in Git
-    untracked: true
-    expire_in: 1 hour
+    - echo "Building the app"
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker compose --file=docker-compose-aboo-checker-prod.yml build
+    - docker compose --file=docker-compose-aboo-checker-prod.yml push
 
 deploy:
   stage: deploy
+  image: docker:latest
+  only:
+    - master
+  services:
+    - docker:dind
   script:
     - echo "Deploying the app"
     - chmod og= $ID_RSA
     - apk update && apk add openssh-client
-    - scp -i $ID_RSA -o StrictHostKeyChecking=no checkers $SERVER_USER@$SERVER_IP:/projects/aboo
+    - scp -i $ID_RSA -o StrictHostKeyChecking=no docker-compose-aboo-checker-prod.yml $SERVER_USER@$SERVER_IP:/projects/aboo/checker/docker-compose-aboo-checker-prod.yml
+    - scp -r -i $ID_RSA -o StrictHostKeyChecking=no docker $SERVER_USER@$SERVER_IP:/projects/aboo/checker
+    - echo "docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY"
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY"
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd /projects/aboo/frontend && docker compose --file=docker-compose-aboo-checker-prod.yml pull"
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd /projects/aboo/frontend && docker compose --file=docker-compose-aboo-checker-prod.yml down"
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd /projects/aboo/frontend && docker compose --file=docker-compose-aboo-checker-prod.yml up -d"
