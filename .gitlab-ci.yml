@@ -18,8 +18,6 @@ build:
 deploy:
   stage: deploy
   image: docker:latest
-  only:
-    - master
   services:
     - docker:dind
   script:
