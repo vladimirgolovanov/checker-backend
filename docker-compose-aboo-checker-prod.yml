@@ -1,7 +1,7 @@
 version: '3.1'
 services:
   checker:
-#    image: registry.gitlab.com/aboo9442027/checker/checker-prod:latest
+    image: registry.gitlab.com/aboo9442027/checker/checker-prod:latest
     build:
       dockerfile: docker/Dockerfile
     container_name: checker
