@@ -1,6 +1,7 @@
 package main
 
 import (
+	"aboo.ru/checkers/namespaces"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -14,25 +15,25 @@ type Request struct {
 }
 
 type Namespaces struct {
-	Namespace int  `json:"namespace_id"`
-	Result    bool `json:"result"`
+	Namespace int                    `json:"namespace_id"`
+	Result    namespaces.CheckStatus `json:"result"`
 }
 
 func main() {
 	http.HandleFunc("/", checkNames)
-	log.Fatal(http.ListenAndServe("0.0.0.0:8080", nil))
+	log.Fatal(http.ListenAndServe("localhost:8080", nil))
 }
 
 func checkNames(w http.ResponseWriter, r *http.Request) {
-	services := []Checker{
+	services := []namespaces.Checker{
 		//&InstagramChecker{}, // 0
-		&ComDomainChecker{}, // 1
-		&RuDomainChecker{},  // 2
-		&NetDomainChecker{}, // 3
-		&IoDomainChecker{},  // 4
-		&TiktokChecker{},    // 5
-		&SnapchatChecker{},  // 6
-		&GithubChecker{},    // 8
+		&namespaces.ComDomainChecker{}, // 1
+		&namespaces.RuDomainChecker{},  // 2
+		&namespaces.NetDomainChecker{}, // 3
+		&namespaces.IoDomainChecker{},  // 4
+		&namespaces.TiktokChecker{},    // 5
+		&namespaces.SnapchatChecker{},  // 6
+		&namespaces.GithubChecker{},    // 8
 	}
 
 	if r.Method != http.MethodPost {
@@ -49,7 +50,7 @@ func checkNames(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	name := requestData.Name
-	var filteredServices []Checker
+	var filteredServices []namespaces.Checker
 
 	for _, service := range services {
 		for _, namespace := range requestData.Namespaces {

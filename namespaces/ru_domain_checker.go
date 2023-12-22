@@ -1,7 +1,6 @@
-package main
+package namespaces
 
 import (
-	"fmt"
 	"os/exec"
 	"strings"
 )
@@ -12,18 +11,18 @@ func (i *RuDomainChecker) GetId() int {
 	return 2
 }
 
-func (i *RuDomainChecker) Check(name string) bool {
+func (i *RuDomainChecker) Check(name string) CheckStatus {
 	domainName := name + ".ru"
 	cmd := exec.Command("whois", domainName)
 
 	output, err := cmd.Output()
 	if err != nil {
-		fmt.Println("Ошибка хз чего:", err)
+		return StatusFailed
 	}
 
 	if strings.Contains(string(output), "No match for domain") {
-		return true
+		return StatusFree
 	}
 
-	return false
+	return StatusUsed
 }
