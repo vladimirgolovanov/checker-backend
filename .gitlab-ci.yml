@@ -12,6 +12,7 @@ build:
     expire_in: 1 hour
   script:
     - go build ./...
+    - ls -la
 
 deploy:
   stage: deploy
