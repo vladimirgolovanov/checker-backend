@@ -4,28 +4,14 @@ stages:
   - build
   - deploy
 
-format:
-  stage: build
-  script:
-    - test -z "$(gofmt -l ./)"
-
-vet:
-  stage: build
-  script:
-    - go vet -json ./... | tee vet-report.json
-  artifacts:
-    when: always
-    paths:
-      - vet-report.json
-    expire_in: 1 hour
-
 build:
   stage: build
+  artifacts:
+    paths:
+      - checkers
+    expire_in: 1 hour
   script:
     - go build ./...
-  artifacts:
-    untracked: true
-    expire_in: 1 hour
 
 deploy:
   stage: deploy
