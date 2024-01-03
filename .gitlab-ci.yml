@@ -2,7 +2,7 @@ image: golang:latest
 
 stages:
   - build
-#  - deploy
+  - deploy
 
 build:
   stage: build
@@ -12,22 +12,22 @@ build:
   script:
     - echo "Building the app"
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker compose --file=docker-compose-aboo-checker-prod.yml build
-    - docker compose --file=docker-compose-aboo-checker-prod.yml push
+    - docker compose --project-name aboo_checkers --file=docker-compose-aboo-checker-prod.yml build
+    - docker compose --project-name aboo_checkers --file=docker-compose-aboo-checker-prod.yml push
 
-#deploy:
-#  stage: deploy
-#  image: docker:latest
-#  services:
-#    - docker:dind
-#  script:
-#    - echo "Deploying the app"
-#    - chmod og= $ID_RSA
-#    - apk update && apk add openssh-client
-#    - scp -i $ID_RSA -o StrictHostKeyChecking=no docker-compose-aboo-checker-prod.yml $SERVER_USER@$SERVER_IP:/projects/aboo/checker/docker-compose-aboo-checker-prod.yml
-#    - scp -r -i $ID_RSA -o StrictHostKeyChecking=no docker $SERVER_USER@$SERVER_IP:/projects/aboo/checker
-#    - echo "docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY"
-#    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY"
-#    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd /projects/aboo/checker && docker compose --file=docker-compose-aboo-checker-prod.yml pull"
-#    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd /projects/aboo/checker && docker compose --file=docker-compose-aboo-checker-prod.yml down"
-#    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd /projects/aboo/checker && docker compose --file=docker-compose-aboo-checker-prod.yml up -d"
+deploy:
+  stage: deploy
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - echo "Deploying the app"
+    - chmod og= $ID_RSA
+    - apk update && apk add openssh-client
+    - scp -i $ID_RSA -o StrictHostKeyChecking=no docker-compose-aboo-checker-prod.yml $SERVER_USER@$SERVER_IP:/projects/aboo/checker/docker-compose-aboo-checker-prod.yml
+    - scp -r -i $ID_RSA -o StrictHostKeyChecking=no docker $SERVER_USER@$SERVER_IP:/projects/aboo/checker
+    - echo "docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY"
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY"
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd /projects/aboo/checker && docker compose --project-name aboo_checkers --file=docker-compose-aboo-checker-prod.yml pull"
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd /projects/aboo/checker && docker compose --project-name aboo_checkers --file=docker-compose-aboo-checker-prod.yml down"
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd /projects/aboo/checker && docker compose --project-name aboo_checkers --file=docker-compose-aboo-checker-prod.yml up -d --remove-orphans"

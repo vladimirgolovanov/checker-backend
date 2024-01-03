@@ -8,3 +8,4 @@ services:
     working_dir: /app
     ports:
       - '56033:8080'
+    restart: unless-stopped
