@@ -19,4 +19,4 @@ deploy:
     - echo "Deploying the app"
     - chmod og= $ID_RSA
     - apk update && apk add openssh-client
-    - scp -i $ID_RSA -o StrictHostKeyChecking=no checkers $SERVER_USER@$SERVER_IP:/projects/aboo
+    - scp -i $ID_RSA -o StrictHostKeyChecking=no $CI_PROJECT_DIR/checkers $SERVER_USER@$SERVER_IP:/projects/aboo
