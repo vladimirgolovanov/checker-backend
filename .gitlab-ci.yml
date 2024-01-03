@@ -11,7 +11,7 @@ build:
       - checkers
     expire_in: 1 hour
   script:
-    - go build ./...
+    - go build
     - ls -la
 
 deploy:
