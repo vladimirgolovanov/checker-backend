@@ -4,6 +4,7 @@ import (
 	"aboo.ru/checkers/namespaces"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"sync"
@@ -47,7 +48,12 @@ func checkNames(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to decode JSON", http.StatusBadRequest)
 		return
 	}
-	defer r.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			fmt.Println("Ошибка при закрытии Body.Close:", err)
+		}
+	}(r.Body)
 
 	name := requestData.Name
 	var filteredServices []namespaces.Checker
@@ -97,5 +103,8 @@ func checkNames(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(responseJSON)
+	_, err = w.Write(responseJSON)
+	if err != nil {
+		fmt.Println("Ошибка отправки ответа:", err)
+	}
 }
