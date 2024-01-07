@@ -27,7 +27,7 @@ func main() {
 
 func checkNames(w http.ResponseWriter, r *http.Request) {
 	services := []namespaces.Checker{
-		//&InstagramChecker{}, // 0
+		&namespaces.InstagramChecker{}, // 0
 		&namespaces.ComDomainChecker{}, // 1
 		&namespaces.RuDomainChecker{},  // 2
 		&namespaces.NetDomainChecker{}, // 3
@@ -68,6 +68,8 @@ func checkNames(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var wg = sync.WaitGroup{}
+
+	fmt.Println(filteredServices)
 
 	ch := make(chan Namespaces, len(filteredServices))
 	var results []Namespaces
