@@ -1,0 +1,34 @@
+package namespaces
+
+import (
+	"io/ioutil"
+	"net/http"
+	"strings"
+)
+
+type TelegramChecker struct {
+}
+
+func (i *TelegramChecker) GetId() int {
+	return 9
+}
+
+func (i *TelegramChecker) Check(name string) CheckStatus {
+	url := "https://t.me/" + name
+	response, err := http.Get(url)
+	if err != nil {
+		return StatusFailed
+	}
+	defer response.Body.Close()
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return StatusFailed
+	}
+
+	if strings.Contains(string(body), "<meta property=\"twitter:title\" content=\"Telegram: Contact @") {
+		return StatusFree
+	}
+
+	return StatusUsed
+}
