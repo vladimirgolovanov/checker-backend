@@ -27,14 +27,14 @@ func main() {
 
 func checkNames(w http.ResponseWriter, r *http.Request) {
 	services := []namespaces.Checker{
-		&namespaces.InstagramChecker{}, // 0
-		&namespaces.ComDomainChecker{}, // 1
-		&namespaces.RuDomainChecker{},  // 2
-		&namespaces.NetDomainChecker{}, // 3
-		&namespaces.IoDomainChecker{},  // 4
-		&namespaces.TiktokChecker{},    // 5
-		&namespaces.SnapchatChecker{},  // 6
-		// npm 7
+		&namespaces.InstagramChecker{},   // 0
+		&namespaces.ComDomainChecker{},   // 1
+		&namespaces.RuDomainChecker{},    // 2
+		&namespaces.NetDomainChecker{},   // 3
+		&namespaces.IoDomainChecker{},    // 4
+		&namespaces.TiktokChecker{},      // 5
+		&namespaces.SnapchatChecker{},    // 6
+		&namespaces.NpmChecker{},         // 7
 		&namespaces.GithubChecker{},      // 8
 		&namespaces.TelegramChecker{},    // 9
 		&namespaces.TelegramBotChecker{}, // 10
