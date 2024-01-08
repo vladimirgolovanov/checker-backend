@@ -31,3 +31,4 @@ deploy:
     - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd /projects/aboo/checker && docker compose --project-name aboo_checkers --file=docker-compose-aboo-checker-prod.yml pull"
     - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd /projects/aboo/checker && docker compose --project-name aboo_checkers --file=docker-compose-aboo-checker-prod.yml down"
     - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd /projects/aboo/checker && docker compose --project-name aboo_checkers --file=docker-compose-aboo-checker-prod.yml up -d --remove-orphans"
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker network connect checkers-network checkers"
