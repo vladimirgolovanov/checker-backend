@@ -29,6 +29,10 @@ func (i *InstagramChecker) Check(name string) CheckStatus {
 		return StatusUsed
 	}
 
+	if strings.Contains(string(body), "\"url\":\"\\/"+name+"\\/\"") == false {
+		return StatusFailed
+	}
+
 	return StatusFree
 
 	/*
