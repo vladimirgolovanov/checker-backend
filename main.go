@@ -7,7 +7,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"sync"
 )
 
 type Request struct {
@@ -70,34 +69,38 @@ func checkNames(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	var wg = sync.WaitGroup{}
+	//var wg = sync.WaitGroup{}
 
 	fmt.Println(filteredServices)
 
-	ch := make(chan Namespaces, len(filteredServices))
+	fmt.Println("filtered len")
+	fmt.Println(len(filteredServices))
+	//ch := make(chan Namespaces, len(filteredServices))
+	//ch := make(chan Namespaces)
 	var results []Namespaces
 	for _, service := range filteredServices {
-		wg.Add(1)
+		//wg.Add(1)
 		service := service // Loop variables captured by 'func' literals in 'go' statements might have unexpected values
-		go func() {
-			serviceResult := service.Check(name)
-			newNamespace := Namespaces{
-				Namespace: service.GetId(),
-				Result:    serviceResult,
-			}
-			ch <- newNamespace
-			wg.Done()
-		}()
+		//go func() {
+		serviceResult := service.Check(name)
+		newNamespace := Namespaces{
+			Namespace: service.GetId(),
+			Result:    serviceResult,
+		}
+		//ch <- newNamespace
+		results = append(results, newNamespace)
+		//wg.Done()
+		//}()
 	}
 
-	go func() {
-		for {
-			result := <-ch
-			results = append(results, result)
-		}
-	}()
+	// go func() {
+	//	for {
+	//		result := <-ch
+	//		results = append(results, result)
+	//	}
+	//}()
 
-	wg.Wait()
+	//wg.Wait()
 
 	fmt.Println(results)
 	responseJSON, err := json.Marshal(results)
