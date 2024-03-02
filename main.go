@@ -1,12 +1,14 @@
 package main
 
 import (
-	"aboo.ru/checkers/namespaces"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
+	"sync"
+
+	"aboo.ru/checkers/namespaces"
 )
 
 type Request struct {
@@ -69,38 +71,32 @@ func checkNames(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	//var wg = sync.WaitGroup{}
+	wg := sync.WaitGroup{}
 
 	fmt.Println(filteredServices)
 
 	fmt.Println("filtered len")
 	fmt.Println(len(filteredServices))
-	//ch := make(chan Namespaces, len(filteredServices))
-	//ch := make(chan Namespaces)
+	ch := make(chan Namespaces, len(filteredServices))
 	var results []Namespaces
 	for _, service := range filteredServices {
-		//wg.Add(1)
-		service := service // Loop variables captured by 'func' literals in 'go' statements might have unexpected values
-		//go func() {
-		serviceResult := service.Check(name)
-		newNamespace := Namespaces{
-			Namespace: service.GetId(),
-			Result:    serviceResult,
-		}
-		//ch <- newNamespace
-		results = append(results, newNamespace)
-		//wg.Done()
-		//}()
+		wg.Add(1)
+		service := service
+		go func() {
+			serviceResult := service.Check(name)
+			newNamespace := Namespaces{
+				Namespace: service.GetId(),
+				Result:    serviceResult,
+			}
+			ch <- newNamespace
+			wg.Done()
+		}()
 	}
+	wg.Wait()
 
-	// go func() {
-	//	for {
-	//		result := <-ch
-	//		results = append(results, result)
-	//	}
-	//}()
-
-	//wg.Wait()
+	for result := range ch {
+		results = append(results, result)
+	}
 
 	fmt.Println(results)
 	responseJSON, err := json.Marshal(results)
