@@ -93,6 +93,7 @@ func checkNames(w http.ResponseWriter, r *http.Request) {
 		}()
 	}
 	wg.Wait()
+	close(ch)
 
 	for result := range ch {
 		results = append(results, result)
