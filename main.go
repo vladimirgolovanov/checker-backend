@@ -40,6 +40,7 @@ func checkNames(w http.ResponseWriter, r *http.Request) {
 		&namespaces.TelegramChecker{},    // 9
 		&namespaces.TelegramBotChecker{}, // 10
 		&namespaces.EstyChecker{},        // 11
+		&namespaces.PinterestChecker{},   // 12
 	}
 
 	if r.Method != http.MethodPost {
