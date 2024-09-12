@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	"aboo.ru/checkers/namespaces"
+	"github.com/getsentry/sentry-go"
 )
 
 type Request struct {
@@ -22,6 +23,16 @@ type Namespaces struct {
 }
 
 func main() {
+	err := sentry.Init(sentry.ClientOptions{
+		Dsn: "https://0abf457094b5907d4b3329cbe005c6a2@o170554.ingest.us.sentry.io/4507941459394560",
+		// Set TracesSampleRate to 1.0 to capture 100%
+		// of transactions for tracing.
+		// We recommend adjusting this value in production,
+		TracesSampleRate: 1.0,
+	})
+	if err != nil {
+		log.Fatalf("sentry.Init: %s", err)
+	}
 	http.HandleFunc("/", checkNames)
 	log.Fatal(http.ListenAndServe("0.0.0.0:8080", nil))
 }
