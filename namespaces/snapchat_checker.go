@@ -12,7 +12,19 @@ func (i *SnapchatChecker) GetId() int {
 	return 6
 }
 
-func (i *SnapchatChecker) Check(name string) CheckStatus {
+func (i *SnapchatChecker) GetName() string {
+	return "Snapchat"
+}
+
+func (i *SnapchatChecker) PrepareName(name string) string {
+	return name
+}
+
+func (i *SnapchatChecker) ValidateName(name string) error {
+	return nil
+}
+
+func (i *SnapchatChecker) Check(name string, params map[string]interface{}) CheckStatus {
 	url := "https://www.snapchat.com/add/" + name
 	response, err := http.Get(url)
 	if err != nil {

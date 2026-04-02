@@ -10,6 +10,9 @@ const (
 )
 
 type Checker interface {
-	Check(name string) CheckStatus
+	PrepareName(name string) string
+	Check(name string, params map[string]interface{}) CheckStatus
+	ValidateName(name string) error
 	GetId() int
+	GetName() string
 }

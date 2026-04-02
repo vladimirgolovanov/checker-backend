@@ -12,7 +12,19 @@ func (i *PinterestChecker) GetId() int {
 	return 12
 }
 
-func (i *PinterestChecker) Check(name string) CheckStatus {
+func (i *PinterestChecker) GetName() string {
+	return "Pinterest"
+}
+
+func (i *PinterestChecker) PrepareName(name string) string {
+	return name
+}
+
+func (i *PinterestChecker) ValidateName(name string) error {
+	return nil
+}
+
+func (i *PinterestChecker) Check(name string, params map[string]interface{}) CheckStatus {
 	url := "https://www.pinterest.com/" + name + "/"
 	response, err := http.Get(url)
 	if err != nil {
