@@ -2,7 +2,7 @@ package namespaces
 
 import (
 	"errors"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 )
@@ -43,9 +43,9 @@ func (i *TelegramChecker) Check(name string, params map[string]interface{}) Chec
 	if err != nil {
 		return StatusFailed
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return StatusFailed
 	}

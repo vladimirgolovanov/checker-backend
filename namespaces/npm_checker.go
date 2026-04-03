@@ -29,7 +29,7 @@ func (i *NpmChecker) Check(name string, params map[string]interface{}) CheckStat
 	if err != nil {
 		return StatusFailed
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 
 	if response.StatusCode == 404 {
 		return StatusFree

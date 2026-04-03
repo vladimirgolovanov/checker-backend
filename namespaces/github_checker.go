@@ -29,7 +29,7 @@ func (i *GithubChecker) Check(name string, params map[string]interface{}) CheckS
 		return StatusFailed
 		// todo: записать ошибку в лог
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 
 	if response.StatusCode != 404 {
 		return StatusUsed

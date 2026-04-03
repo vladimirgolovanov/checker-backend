@@ -45,7 +45,7 @@ func (i *EstyChecker) Check(name string, params map[string]interface{}) CheckSta
 		fmt.Println("failed on do request: ", err)
 		return StatusFailed
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 
 	if response.StatusCode == 404 {
 		return StatusFree

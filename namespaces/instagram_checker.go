@@ -72,7 +72,7 @@ func (i *InstagramChecker) Check(name string, params map[string]interface{}) Che
 		fmt.Println("failed on do request: ", err)
 		return StatusFailed
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
