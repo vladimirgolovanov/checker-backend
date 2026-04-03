@@ -28,7 +28,7 @@ var CheckerRegistry = map[int]func(params map[string]interface{}) []namespaces.C
 	8:  single(&namespaces.GithubChecker{}),
 	9:  single(&namespaces.TelegramChecker{}),
 	10: single(&namespaces.TelegramBotChecker{}),
-	11: single(&namespaces.EstyChecker{}),
+	11: single(&namespaces.EtsyChecker{}),
 	12: single(&namespaces.PinterestChecker{}),
 }
 

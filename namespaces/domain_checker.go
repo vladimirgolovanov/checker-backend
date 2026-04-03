@@ -46,32 +46,18 @@ func (i *DomainChecker) ValidateName(name string) error {
 }
 
 func (i *DomainChecker) Check(name string, params map[string]interface{}) CheckStatus {
-	zones := []string{"com"} // дефолт
+	domainName := name + "." + i.Zone
 
-	if params != nil {
-		if z, ok := params["zones"]; ok {
-			if zoneSlice, ok := z.([]interface{}); ok {
-				zones = make([]string, len(zoneSlice))
-				for i, zone := range zoneSlice {
-					zones[i] = zone.(string)
-				}
-			}
-		}
+	cmd := exec.Command("whois", domainName)
+
+	output, err := cmd.Output()
+	if err != nil {
+		fmt.Println("failed on whois: ", err)
+		return StatusFailed
 	}
 
-	for _, zone := range zones {
-		domainName := name + "." + zone
-		cmd := exec.Command("whois", domainName)
-
-		output, err := cmd.Output()
-		if err != nil {
-			fmt.Println("failed on whois: ", err)
-			return StatusFailed
-		}
-
-		if strings.Contains(string(output), "No match for domain") {
-			return StatusFree
-		}
+	if strings.Contains(string(output), "No match for domain") {
+		return StatusFree
 	}
 
 	return StatusUsed

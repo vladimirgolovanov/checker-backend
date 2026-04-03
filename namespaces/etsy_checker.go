@@ -5,28 +5,28 @@ import (
 	"net/http"
 )
 
-type EstyChecker struct {
+type EtsyChecker struct {
 }
 
-func (i *EstyChecker) GetId() int {
+func (i *EtsyChecker) GetId() int {
 	return 11
 }
 
-func (i *EstyChecker) GetName() string {
+func (i *EtsyChecker) GetName() string {
 	return "Esty"
 }
 
-func (i *EstyChecker) PrepareName(name string) string {
+func (i *EtsyChecker) PrepareName(name string) string {
 	return name
 }
 
 // если содержит a-z, 0-9, _ и длиной от 4 до 20 символов
 // если нет, то возвращаем ошибку
-func (i *EstyChecker) ValidateName(name string) error {
+func (i *EtsyChecker) ValidateName(name string) error {
 	return nil
 }
 
-func (i *EstyChecker) Check(name string, params map[string]interface{}) CheckStatus {
+func (i *EtsyChecker) Check(name string, params map[string]interface{}) CheckStatus {
 	url := "https://www.etsy.com/shop/" + name
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {

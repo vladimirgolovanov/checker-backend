@@ -51,7 +51,7 @@ func CheckNameHandler(registry map[int]func(map[string]interface{}) []namespaces
 
 		wg := sync.WaitGroup{}
 
-		ch := make(chan Namespaces, len(req.Namespaces))
+		var mu sync.Mutex
 		var results []Namespaces
 		var validationErrors []map[string]interface{}
 		for _, ns := range req.Namespaces {
@@ -73,22 +73,16 @@ func CheckNameHandler(registry map[int]func(map[string]interface{}) []namespaces
 
 				wg.Add(1)
 				go func(ns NamespaceRequest, checker namespaces.Checker) {
+					defer wg.Done()
 					checkerResult := checker.Check(name, ns.Params)
-					ch <- Namespaces{
-						Namespace: ns.ID,
-						Result:    checkerResult,
-					}
-					wg.Done()
+					mu.Lock()
+					results = append(results, Namespaces{Namespace: ns.ID, Result: checkerResult})
+					mu.Unlock()
 				}(ns, checker)
 			}
 		}
 
 		wg.Wait()
-		close(ch)
-
-		for result := range ch {
-			results = append(results, result)
-		}
 
 		fmt.Println(results)
 		response := Response{
