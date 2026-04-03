@@ -22,6 +22,7 @@ type NamespaceRequest struct {
 type Namespaces struct {
 	Namespace int                    `json:"namespace_id"`
 	Result    namespaces.CheckStatus `json:"result"`
+	Params    string                 `json:"params,omitempty"`
 }
 
 type Response struct {
@@ -75,8 +76,12 @@ func CheckNameHandler(registry map[int]func(map[string]interface{}) []namespaces
 				go func(ns NamespaceRequest, checker namespaces.Checker) {
 					defer wg.Done()
 					checkerResult := checker.Check(name, ns.Params)
+					entry := Namespaces{Namespace: ns.ID, Result: checkerResult}
+					if dc, ok := checker.(*namespaces.DomainChecker); ok {
+						entry.Params = dc.Zone
+					}
 					mu.Lock()
-					results = append(results, Namespaces{Namespace: ns.ID, Result: checkerResult})
+					results = append(results, entry)
 					mu.Unlock()
 				}(ns, checker)
 			}
