@@ -29,117 +29,83 @@ type Response struct {
 	ValidationErrors []map[string]interface{} `json:"validation_errors"`
 }
 
-func CheckNameHandler(w http.ResponseWriter, r *http.Request) {
-	var checkerRegistry = map[int]func(params map[string]interface{}) []namespaces.Checker{
-		0: single(&namespaces.InstagramChecker{}),
-		1: func(params map[string]interface{}) []namespaces.Checker {
-			zones := []string{"com"}
-			if params != nil {
-				if z, ok := params["zones"]; ok {
-					if zoneSlice, ok := z.([]interface{}); ok {
-						zones = make([]string, len(zoneSlice))
-						for i, zone := range zoneSlice {
-							zones[i] = zone.(string)
-						}
-					}
-				}
-			}
-			checkers := make([]namespaces.Checker, len(zones))
-			for i, zone := range zones {
-				checkers[i] = &namespaces.DomainChecker{Zone: zone}
-			}
-			return checkers
-		},
-		5:  single(&namespaces.TiktokChecker{}),
-		6:  single(&namespaces.SnapchatChecker{}),
-		7:  single(&namespaces.NpmChecker{}),
-		8:  single(&namespaces.GithubChecker{}),
-		9:  single(&namespaces.TelegramChecker{}),
-		10: single(&namespaces.TelegramBotChecker{}),
-		11: single(&namespaces.EstyChecker{}),
-		12: single(&namespaces.PinterestChecker{}),
-	}
-
-	if r.Method != http.MethodPost {
-		http.Error(w, "Only POST requests are allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	var req Request
-	err := json.NewDecoder(r.Body).Decode(&req)
-	if err != nil {
-		http.Error(w, "Error parsing JSON", http.StatusBadRequest)
-		return
-	}
-
-	if req.Name == "" {
-		http.Error(w, "Name is required", http.StatusBadRequest)
-		return
-	}
-	name := strings.ToLower(req.Name)
-
-	wg := sync.WaitGroup{}
-
-	ch := make(chan Namespaces, len(req.Namespaces))
-	var results []Namespaces
-	var validationErrors []map[string]interface{}
-	for _, ns := range req.Namespaces {
-		factory, ok := checkerRegistry[ns.ID]
-		if !ok {
-			continue
+func CheckNameHandler(registry map[int]func(map[string]interface{}) []namespaces.Checker) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "Only POST requests are allowed", http.StatusMethodNotAllowed)
+			return
 		}
 
-		checkers := factory(ns.Params)
+		var req Request
+		err := json.NewDecoder(r.Body).Decode(&req)
+		if err != nil {
+			http.Error(w, "Error parsing JSON", http.StatusBadRequest)
+			return
+		}
 
-		for _, checker := range checkers {
-			if err := checker.ValidateName(name); err != nil {
-				validationErrors = append(validationErrors, map[string]interface{}{
-					"namespace": checker.GetId(),
-					"errors":    err.Error(),
-				})
+		if req.Name == "" {
+			http.Error(w, "Name is required", http.StatusBadRequest)
+			return
+		}
+		name := strings.ToLower(req.Name)
+
+		wg := sync.WaitGroup{}
+
+		ch := make(chan Namespaces, len(req.Namespaces))
+		var results []Namespaces
+		var validationErrors []map[string]interface{}
+		for _, ns := range req.Namespaces {
+			factory, ok := registry[ns.ID]
+			if !ok {
 				continue
 			}
 
-			wg.Add(1)
-			go func(ns NamespaceRequest, checker namespaces.Checker) {
-				checkerResult := checker.Check(name, ns.Params)
-				ch <- Namespaces{
-					Namespace: ns.ID,
-					Result:    checkerResult,
+			checkers := factory(ns.Params)
+
+			for _, checker := range checkers {
+				if err := checker.ValidateName(name); err != nil {
+					validationErrors = append(validationErrors, map[string]interface{}{
+						"namespace": checker.GetId(),
+						"errors":    err.Error(),
+					})
+					continue
 				}
-				wg.Done()
-			}(ns, checker)
+
+				wg.Add(1)
+				go func(ns NamespaceRequest, checker namespaces.Checker) {
+					checkerResult := checker.Check(name, ns.Params)
+					ch <- Namespaces{
+						Namespace: ns.ID,
+						Result:    checkerResult,
+					}
+					wg.Done()
+				}(ns, checker)
+			}
 		}
-	}
 
-	wg.Wait()
-	close(ch)
+		wg.Wait()
+		close(ch)
 
-	for result := range ch {
-		results = append(results, result)
-	}
+		for result := range ch {
+			results = append(results, result)
+		}
 
-	fmt.Println(results)
-	response := Response{
-		Results:          results,
-		ValidationErrors: validationErrors,
-	}
-	responseJSON, err := json.Marshal(response)
-	if err != nil {
-		fmt.Println("Ошибка при маршалинге JSON:", err)
-		return
-	}
+		fmt.Println(results)
+		response := Response{
+			Results:          results,
+			ValidationErrors: validationErrors,
+		}
+		responseJSON, err := json.Marshal(response)
+		if err != nil {
+			fmt.Println("Ошибка при маршалинге JSON:", err)
+			return
+		}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	_, err = w.Write(responseJSON)
-	if err != nil {
-		fmt.Println("Ошибка отправки ответа:", err)
-	}
-}
-
-func single(c namespaces.Checker) func(map[string]interface{}) []namespaces.Checker {
-	return func(params map[string]interface{}) []namespaces.Checker {
-		return []namespaces.Checker{c}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		_, err = w.Write(responseJSON)
+		if err != nil {
+			fmt.Println("Ошибка отправки ответа:", err)
+		}
 	}
 }

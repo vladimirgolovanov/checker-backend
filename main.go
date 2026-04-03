@@ -35,6 +35,6 @@ func main() {
 		appHost = "0.0.0.0:8080"
 	}
 
-	http.HandleFunc("/api/check_name", handlers.CheckNameHandler)
+	http.HandleFunc("/api/check_name", handlers.CheckNameHandler(CheckerRegistry))
 	log.Fatal(http.ListenAndServe(appHost, nil))
 }
