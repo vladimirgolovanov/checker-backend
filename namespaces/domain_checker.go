@@ -3,8 +3,9 @@ package namespaces
 import (
 	"errors"
 	"fmt"
-	"os/exec"
 	"strings"
+
+	"github.com/likexian/whois"
 )
 
 type DomainChecker struct {
@@ -48,16 +49,29 @@ func (i *DomainChecker) ValidateName(name string) error {
 func (i *DomainChecker) Check(name string, params map[string]interface{}) CheckStatus {
 	domainName := name + "." + i.Zone
 
-	cmd := exec.Command("whois", domainName)
-
-	output, err := cmd.Output()
+	output, err := whois.Whois(domainName)
 	if err != nil {
 		fmt.Println("failed on whois: ", err)
 		return StatusFailed
 	}
 
-	if strings.Contains(string(output), "No match for domain") {
-		return StatusFree
+	outputLower := strings.ToLower(output)
+
+	freeIndicators := []string{
+		"no match for domain",
+		"no match for",
+		"not found",
+		"no data found",
+		"no entries found",
+		"status: free",
+		"status: available",
+		"is free",
+	}
+
+	for _, indicator := range freeIndicators {
+		if strings.Contains(outputLower, indicator) {
+			return StatusFree
+		}
 	}
 
 	return StatusUsed

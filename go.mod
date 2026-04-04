@@ -1,16 +1,15 @@
 module aboo.ru/checkers
 
-go 1.20
+go 1.25.0
 
 require (
-	github.com/getsentry/sentry-go v0.29.0 // indirect
-	github.com/golang/protobuf v1.5.3 // indirect
-	github.com/joho/godotenv v1.5.1 // indirect
-	golang.org/x/net v0.23.0 // indirect
-	golang.org/x/sys v0.18.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20230803162519-f966b187b2e5 // indirect
-	google.golang.org/grpc v1.57.0 // indirect
-	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.3.0 // indirect
-	google.golang.org/protobuf v1.33.0 // indirect
+	github.com/getsentry/sentry-go v0.29.0
+	github.com/joho/godotenv v1.5.1
+	github.com/likexian/whois v1.15.7
+)
+
+require (
+	golang.org/x/net v0.52.0 // indirect
+	golang.org/x/sys v0.42.0 // indirect
+	golang.org/x/text v0.35.0 // indirect
 )
