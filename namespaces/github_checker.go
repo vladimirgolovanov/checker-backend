@@ -1,10 +1,5 @@
 package namespaces
 
-import (
-	"io"
-	"net/http"
-)
-
 type GithubChecker struct{}
 
 func (i *GithubChecker) GetId() int {
@@ -24,18 +19,12 @@ func (i *GithubChecker) ValidateName(name string) error {
 }
 
 func (i *GithubChecker) Check(name string, params map[string]interface{}) CheckStatus {
-	url := "https://github.com/" + name
-	response, err := http.Get(url)
-	if err != nil {
-		return StatusFailed
-		// todo: записать ошибку в лог
+	resp, status := Get("https://github.com/"+name, nil)
+	if status != 0 {
+		return status
 	}
-	defer func() {
-		_, _ = io.Copy(io.Discard, response.Body)
-		_ = response.Body.Close()
-	}()
 
-	if response.StatusCode != 404 {
+	if resp.StatusCode != 404 {
 		return StatusUsed
 	}
 

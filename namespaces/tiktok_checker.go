@@ -1,10 +1,6 @@
 package namespaces
 
-import (
-	"io"
-	"net/http"
-	"strings"
-)
+import "strings"
 
 type TiktokChecker struct{}
 
@@ -25,19 +21,12 @@ func (i *TiktokChecker) ValidateName(name string) error {
 }
 
 func (i *TiktokChecker) Check(name string, params map[string]interface{}) CheckStatus {
-	url := "https://www.tiktok.com/@" + name
-	response, err := http.Get(url)
-	if err != nil {
-		return StatusFailed
-	}
-	defer func() { _ = response.Body.Close() }()
-
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		return StatusFailed
+	resp, status := Get("https://www.tiktok.com/@"+name, nil)
+	if status != 0 {
+		return status
 	}
 
-	if strings.Contains(string(body), "uniqueId") {
+	if strings.Contains(string(resp.Body), "uniqueId") {
 		return StatusUsed
 	}
 

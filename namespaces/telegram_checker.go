@@ -2,13 +2,10 @@ package namespaces
 
 import (
 	"errors"
-	"io"
-	"net/http"
 	"strings"
 )
 
-type TelegramChecker struct {
-}
+type TelegramChecker struct{}
 
 func (i *TelegramChecker) GetId() int {
 	return 9
@@ -38,19 +35,12 @@ func (i *TelegramChecker) ValidateName(name string) error {
 }
 
 func (i *TelegramChecker) Check(name string, params map[string]interface{}) CheckStatus {
-	url := "https://t.me/" + name
-	response, err := http.Get(url)
-	if err != nil {
-		return StatusFailed
-	}
-	defer func() { _ = response.Body.Close() }()
-
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		return StatusFailed
+	resp, status := Get("https://t.me/"+name, nil)
+	if status != 0 {
+		return status
 	}
 
-	if strings.Contains(string(body), "<meta property=\"twitter:title\" content=\"Telegram: Contact @") {
+	if strings.Contains(string(resp.Body), "<meta property=\"twitter:title\" content=\"Telegram: Contact @") {
 		return StatusFree
 	}
 

@@ -1,10 +1,6 @@
 package namespaces
 
-import (
-	"io"
-	"net/http"
-	"strings"
-)
+import "strings"
 
 type PinterestChecker struct{}
 
@@ -25,19 +21,12 @@ func (i *PinterestChecker) ValidateName(name string) error {
 }
 
 func (i *PinterestChecker) Check(name string, params map[string]interface{}) CheckStatus {
-	url := "https://www.pinterest.com/" + name + "/"
-	response, err := http.Get(url)
-	if err != nil {
-		return StatusFailed
-	}
-	defer func() { _ = response.Body.Close() }()
-
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		return StatusFailed
+	resp, status := Get("https://www.pinterest.com/"+name+"/", nil)
+	if status != 0 {
+		return status
 	}
 
-	if strings.Contains(string(body), "Profile | Pinterest</title>") {
+	if strings.Contains(string(resp.Body), "Profile | Pinterest</title>") {
 		return StatusUsed
 	}
 

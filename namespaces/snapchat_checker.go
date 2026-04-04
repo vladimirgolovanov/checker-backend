@@ -1,10 +1,6 @@
 package namespaces
 
-import (
-	"io"
-	"net/http"
-	"strings"
-)
+import "strings"
 
 type SnapchatChecker struct{}
 
@@ -25,19 +21,12 @@ func (i *SnapchatChecker) ValidateName(name string) error {
 }
 
 func (i *SnapchatChecker) Check(name string, params map[string]interface{}) CheckStatus {
-	url := "https://www.snapchat.com/add/" + name
-	response, err := http.Get(url)
-	if err != nil {
-		return StatusFailed
-	}
-	defer func() { _ = response.Body.Close() }()
-
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		return StatusFailed
+	resp, status := Get("https://www.snapchat.com/add/"+name, nil)
+	if status != 0 {
+		return status
 	}
 
-	if strings.Contains(string(body), "<title data-react-helmet=\"true\">Snapchat</title>") {
+	if strings.Contains(string(resp.Body), "<title data-react-helmet=\"true\">Snapchat</title>") {
 		return StatusFree
 	}
 

@@ -1,12 +1,6 @@
 package namespaces
 
-import (
-	"io"
-	"net/http"
-)
-
-type NpmChecker struct {
-}
+type NpmChecker struct{}
 
 func (i *NpmChecker) GetId() int {
 	return 7
@@ -25,17 +19,12 @@ func (i *NpmChecker) ValidateName(name string) error {
 }
 
 func (i *NpmChecker) Check(name string, params map[string]interface{}) CheckStatus {
-	url := "https://www.npmjs.com/package/" + name
-	response, err := http.Get(url)
-	if err != nil {
-		return StatusFailed
+	resp, status := Get("https://www.npmjs.com/package/"+name, nil)
+	if status != 0 {
+		return status
 	}
-	defer func() {
-		_, _ = io.Copy(io.Discard, response.Body)
-		_ = response.Body.Close()
-	}()
 
-	if response.StatusCode == 404 {
+	if resp.StatusCode == 404 {
 		return StatusFree
 	}
 
