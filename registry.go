@@ -9,6 +9,9 @@ var CheckerRegistry = map[int]func(params map[string]interface{}) []namespaces.C
 		if params != nil {
 			if z, ok := params["zones"]; ok {
 				if zoneSlice, ok := z.([]interface{}); ok {
+					if len(zoneSlice) > 50 {
+						zoneSlice = zoneSlice[:50]
+					}
 					zones = make([]string, len(zoneSlice))
 					for i, zone := range zoneSlice {
 						zones[i] = zone.(string)
