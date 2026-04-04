@@ -1,6 +1,7 @@
 package namespaces
 
 import (
+	"io"
 	"net/http"
 )
 
@@ -29,7 +30,10 @@ func (i *GithubChecker) Check(name string, params map[string]interface{}) CheckS
 		return StatusFailed
 		// todo: записать ошибку в лог
 	}
-	defer func() { _ = response.Body.Close() }()
+	defer func() {
+		_, _ = io.Copy(io.Discard, response.Body)
+		_ = response.Body.Close()
+	}()
 
 	if response.StatusCode != 404 {
 		return StatusUsed

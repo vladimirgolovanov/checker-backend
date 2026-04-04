@@ -1,6 +1,7 @@
 package namespaces
 
 import (
+	"io"
 	"net/http"
 )
 
@@ -29,7 +30,10 @@ func (i *NpmChecker) Check(name string, params map[string]interface{}) CheckStat
 	if err != nil {
 		return StatusFailed
 	}
-	defer func() { _ = response.Body.Close() }()
+	defer func() {
+		_, _ = io.Copy(io.Discard, response.Body)
+		_ = response.Body.Close()
+	}()
 
 	if response.StatusCode == 404 {
 		return StatusFree
