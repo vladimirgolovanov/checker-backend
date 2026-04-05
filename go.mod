@@ -1,4 +1,4 @@
-module aboo.ru/checkers
+module github.com/vladimirgolovanov/checker-backend
 
 go 1.25.0
 

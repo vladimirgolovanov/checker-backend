@@ -1,6 +1,6 @@
 package main
 
-import "aboo.ru/checkers/namespaces"
+import "github.com/vladimirgolovanov/checker-backend/namespaces"
 
 var CheckerRegistry = map[int]func(params map[string]interface{}) []namespaces.Checker{
 	0: single(&namespaces.InstagramChecker{}),
@@ -12,9 +12,11 @@ var CheckerRegistry = map[int]func(params map[string]interface{}) []namespaces.C
 					if len(zoneSlice) > 50 {
 						zoneSlice = zoneSlice[:50]
 					}
-					zones = make([]string, len(zoneSlice))
-					for i, zone := range zoneSlice {
-						zones[i] = zone.(string)
+					zones = make([]string, 0, len(zoneSlice))
+					for _, zone := range zoneSlice {
+						if s, ok := zone.(string); ok {
+							zones = append(zones, s)
+						}
 					}
 				}
 			}

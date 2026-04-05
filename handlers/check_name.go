@@ -7,7 +7,7 @@ import (
 	"strings"
 	"sync"
 
-	"aboo.ru/checkers/namespaces"
+	"github.com/vladimirgolovanov/checker-backend/namespaces"
 )
 
 type Request struct {

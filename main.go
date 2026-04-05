@@ -9,7 +9,7 @@ import (
 	"github.com/getsentry/sentry-go"
 	"github.com/joho/godotenv"
 
-	"aboo.ru/checkers/handlers"
+	"github.com/vladimirgolovanov/checker-backend/handlers"
 )
 
 func main() {
