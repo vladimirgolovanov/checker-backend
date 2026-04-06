@@ -64,6 +64,7 @@ func CheckNameHandler(registry map[int]func(map[string]interface{}) []namespaces
 			checkers := factory(ns.Params)
 
 			for _, checker := range checkers {
+				name = checker.PrepareName(name)
 				if err := checker.ValidateName(name); err != nil {
 					validationErrors = append(validationErrors, map[string]interface{}{
 						"namespace": checker.GetId(),

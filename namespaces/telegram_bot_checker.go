@@ -16,7 +16,7 @@ func (i *TelegramBotChecker) GetName() string {
 }
 
 func (i *TelegramBotChecker) PrepareName(name string) string {
-	return name
+	return name + "bot"
 }
 
 func (i *TelegramBotChecker) ValidateName(name string) error {
