@@ -16,14 +16,11 @@ type HttpResponse struct {
 	Body       []byte
 }
 
-// Get выполняет GET-запрос с таймаутом и экранированием пути.
-// Возвращает StatusPending при таймауте, StatusFailed при других ошибках.
 func Get(rawURL string, headers map[string]string) (*HttpResponse, CheckStatus) {
 	parsedURL, err := url.Parse(rawURL)
 	if err != nil {
 		return nil, StatusFailed
 	}
-	parsedURL.Path = parsedURL.Path
 	parsedURL.RawPath = parsedURL.EscapedPath()
 
 	req, err := http.NewRequest("GET", parsedURL.String(), nil)
