@@ -42,6 +42,7 @@ jobs:
 
       - name: Build and push
         run: |
+          touch .env
           docker compose --project-name checkers-backend --file=docker-compose-checkers-backend-github-prod.yml build
           docker compose --project-name checkers-backend --file=docker-compose-checkers-backend-github-prod.yml push
 
