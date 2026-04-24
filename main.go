@@ -13,9 +13,8 @@ import (
 )
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
+	if err := godotenv.Load(); err != nil {
+		log.Printf("No .env file found, using environment variables")
 	}
 
 	sentryDsn := os.Getenv("SENTRY_DSN")

@@ -8,4 +8,6 @@ services:
     working_dir: /app
     ports:
       - '19002:8080'
+    env_file:
+      - .env
     restart: unless-stopped
