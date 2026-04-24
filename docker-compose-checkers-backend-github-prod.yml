@@ -1,0 +1,11 @@
+version: '3.1'
+services:
+  checkers:
+    image: ghcr.io/vladimirgolovanov/checker-backend/checkers:latest
+    build:
+      dockerfile: docker/Dockerfile
+    container_name: checkers
+    working_dir: /app
+    ports:
+      - '19002:8080'
+    restart: unless-stopped

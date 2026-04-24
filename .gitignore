@@ -1,3 +1,5 @@
 .idea
 checkers
 .env
+.DS_Store
+
