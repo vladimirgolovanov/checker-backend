@@ -72,5 +72,4 @@ jobs:
             docker compose --project-name checkers-backend --file=docker-compose-checkers-backend-github-prod.yml pull
             docker compose --project-name checkers-backend --file=docker-compose-checkers-backend-github-prod.yml down
             docker compose --project-name checkers-backend --file=docker-compose-checkers-backend-github-prod.yml up -d --remove-orphans
-            docker network connect checkers-network checkers
           EOF
