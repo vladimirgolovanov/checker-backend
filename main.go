@@ -8,8 +8,12 @@ import (
 
 	"github.com/getsentry/sentry-go"
 	"github.com/joho/godotenv"
+	grab_instagram "github.com/vladimirgolovanov/grab-proto/gen/instagram"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/vladimirgolovanov/checker-backend/handlers"
+	"github.com/vladimirgolovanov/checker-backend/namespaces"
 )
 
 func main() {
@@ -28,6 +32,18 @@ func main() {
 			log.Fatalf("sentry.Init: %s", err)
 		}
 	}
+
+	grpcAddr := os.Getenv("GRPC_ADDR")
+	if grpcAddr == "" {
+		log.Fatalf("GRPC_ADDR is not set")
+	}
+	conn, err := grpc.NewClient(grpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatalf("failed to connect to gRPC server: %s", err)
+	}
+	defer conn.Close()
+
+	CheckerRegistry[0] = single(namespaces.NewInstagramChecker(grab_instagram.NewInstagramClient(conn)))
 
 	appHost := os.Getenv("APP_HOST")
 	if appHost == "" {

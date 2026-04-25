@@ -1,11 +1,19 @@
 package namespaces
 
 import (
-	"fmt"
-	"strings"
+	"context"
+	"time"
+
+	grab_instagram "github.com/vladimirgolovanov/grab-proto/gen/instagram"
 )
 
-type InstagramChecker struct{}
+type InstagramChecker struct {
+	client grab_instagram.InstagramClient
+}
+
+func NewInstagramChecker(client grab_instagram.InstagramClient) *InstagramChecker {
+	return &InstagramChecker{client: client}
+}
 
 func (i *InstagramChecker) GetId() int {
 	return 0
@@ -24,23 +32,28 @@ func (i *InstagramChecker) ValidateName(name string) error {
 }
 
 func (i *InstagramChecker) Check(name string, params map[string]interface{}) CheckStatus {
-	resp, status := Get("https://www.instagram.com/"+name+"/", nil)
-	if status != 0 {
-		return status
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+
+	stream, err := i.client.CheckUsername(ctx, &grab_instagram.CheckUsernameRequest{
+		Usernames: []string{name},
+	})
+	if err != nil {
+		return StatusPending
 	}
 
-	body := string(resp.Body)
-
-	if strings.Contains(body, "{\"username\":\""+name+"\"}") {
-		fmt.Println("used")
-		return StatusUsed
-	}
-
-	if !strings.Contains(body, "\"url\":\"\\/"+name+"\\/\"") {
-		fmt.Println("failed on finding url string")
+	resp, err := stream.Recv()
+	if err != nil {
 		return StatusFailed
 	}
 
-	fmt.Println("free")
+	if resp.Error != "" {
+		return StatusFailed
+	}
+
+	if resp.Exists {
+		return StatusUsed
+	}
+
 	return StatusFree
 }
