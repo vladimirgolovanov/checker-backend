@@ -10,6 +10,8 @@ services:
       - '19002:8080'
     env_file:
       - .env
+    networks:
+      - grpc-net
     restart: unless-stopped
 
 networks:
