@@ -2,6 +2,7 @@ package namespaces
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	grab_instagram "github.com/vladimirgolovanov/grab-proto/gen/instagram"
@@ -39,15 +40,18 @@ func (i *InstagramChecker) Check(name string, params map[string]interface{}) Che
 		Usernames: []string{name},
 	})
 	if err != nil {
+		fmt.Println(err)
 		return StatusPending
 	}
 
 	resp, err := stream.Recv()
 	if err != nil {
+		fmt.Println(err)
 		return StatusFailed
 	}
 
 	if resp.Error != "" {
+		fmt.Println(resp.Error)
 		return StatusFailed
 	}
 
