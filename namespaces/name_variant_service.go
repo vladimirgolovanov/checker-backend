@@ -1,6 +1,8 @@
 package namespaces
 
-import "strings"
+import (
+	"strings"
+)
 
 func GetSaparateSymbols() []string {
 	return []string{"-", "_", "."}
@@ -10,7 +12,7 @@ func GetBaseSeparator() string {
 	return "-"
 }
 
-func GetVariants(name string, checker Checker) []string {
+func GetVariants(name string, checker Checker) ([]string, []error) {
 	names := []string{}
 	baseSaparator := GetBaseSeparator()
 	separates := GetSaparateSymbols()
@@ -32,5 +34,19 @@ func GetVariants(name string, checker Checker) []string {
 		names = append(names, name)
 	}
 
-	return names
+	var errs []error
+	valid := []string{}
+	for _, name := range names {
+		if err := checker.ValidateName(name); err != nil {
+			errs = append(errs, err)
+		} else {
+			valid = append(valid, name)
+		}
+	}
+
+	if len(valid) == 0 {
+		return nil, errs
+	}
+
+	return valid, nil
 }

@@ -7,6 +7,7 @@ const (
 	StatusUsed
 	StatusPending
 	StatusFailed
+	StatusValidationError
 )
 
 type Checker interface {

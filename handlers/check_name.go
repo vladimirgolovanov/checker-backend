@@ -35,8 +35,8 @@ type resultItem struct {
 }
 
 type validationErrorItem struct {
-	NamespaceID int    `json:"namespace_id"`
-	Errors      string `json:"errors"`
+	NamespaceID int      `json:"namespace_id"`
+	Errors      []string `json:"errors,omitempty"`
 }
 
 type checkerTask struct {
@@ -82,6 +82,7 @@ func CheckNameHandler(registry map[int]func(map[string]interface{}) []namespaces
 		// Pass 1: build pending list and task list sequentially
 		var pending []pendingItem
 		var tasks []checkerTask
+		var validationErrors []validationErrorItem
 
 		for _, ns := range req.Namespaces {
 			factory, ok := registry[ns.ID]
@@ -90,43 +91,37 @@ func CheckNameHandler(registry map[int]func(map[string]interface{}) []namespaces
 			}
 			checkers := factory(ns.Params)
 			for _, checker := range checkers {
-				names := namespaces.GetVariants(name, checker)
-
-				for _, name := range names {
-					item := pendingItem{
-						NamespaceID: ns.ID,
-						Name:        name,
-						Result:      int(namespaces.StatusPending),
+				names, errs := namespaces.GetVariants(name, checker)
+				if errs != nil {
+					var errors []string
+					for _, e := range errs {
+						errors = append(errors, e.Error())
 					}
-
-					if dc, ok := checker.(*namespaces.DomainChecker); ok {
-						item.Params = dc.Zone
-					}
-
-					pending = append(pending, item)
-					tasks = append(tasks, checkerTask{
-						checker:      checker,
-						ns:           ns,
-						preparedName: name,
-						params:       item.Params,
+					validationErrors = append(validationErrors, validationErrorItem{
+						ns.ID,
+						errors,
 					})
-				}
+				} else {
+					for _, name := range names {
+						item := pendingItem{
+							NamespaceID: ns.ID,
+							Name:        name,
+							Result:      int(namespaces.StatusPending),
+						}
 
-				// name = checker.PrepareName(name)
-				// item := pendingItem{
-				// 	NamespaceID: ns.ID,
-				// 	Result:      int(namespaces.StatusPending),
-				// }
-				// if dc, ok := checker.(*namespaces.DomainChecker); ok {
-				// 	item.Params = dc.Zone
-				// }
-				// pending = append(pending, item)
-				// tasks = append(tasks, checkerTask{
-				// 	checker:      checker,
-				// 	ns:           ns,
-				// 	preparedName: name,
-				// 	params:       item.Params,
-				// })
+						if dc, ok := checker.(*namespaces.DomainChecker); ok {
+							item.Params = dc.Zone
+						}
+
+						pending = append(pending, item)
+						tasks = append(tasks, checkerTask{
+							checker:      checker,
+							ns:           ns,
+							preparedName: name,
+							params:       item.Params,
+						})
+					}
+				}
 			}
 		}
 
@@ -134,6 +129,8 @@ func CheckNameHandler(registry map[int]func(map[string]interface{}) []namespaces
 		w.Header().Set("Cache-Control", "no-cache")
 		w.Header().Set("Connection", "keep-alive")
 		w.Header().Set("X-Accel-Buffering", "no")
+
+		writeSSEEvent(w, "validation_errors", validationErrors)
 
 		writeSSEEvent(w, "pending", pending)
 		flusher.Flush()
@@ -143,14 +140,6 @@ func CheckNameHandler(registry map[int]func(map[string]interface{}) []namespaces
 		var wg sync.WaitGroup
 
 		for _, task := range tasks {
-			// if err := task.checker.ValidateName(task.preparedName); err != nil {
-			// 	writeSSEEvent(w, "validation_error", validationErrorItem{
-			// 		NamespaceID: task.ns.ID,
-			// 		Errors:      err.Error(),
-			// 	})
-			// 	flusher.Flush()
-			// 	continue
-			// }
 			wg.Add(1)
 			go func(t checkerTask) {
 				defer wg.Done()

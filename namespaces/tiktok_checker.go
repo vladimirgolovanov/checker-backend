@@ -1,6 +1,10 @@
 package namespaces
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+	"unicode"
+)
 
 // Usernames can't contain numbers only
 // Only lowercase letters, numbers, underscores, or periods are allowed
@@ -29,6 +33,20 @@ func (i *TiktokChecker) PrepareName(name string) string {
 }
 
 func (i *TiktokChecker) ValidateName(name string) error {
+	if len(name) < 2 || len(name) > 24 {
+		return fmt.Errorf("Name must be between 2 and 24 characters")
+	}
+
+	for _, c := range name {
+		if !unicode.IsLower(c) && !unicode.IsDigit(c) && c != '_' && c != '.' {
+			return fmt.Errorf("Name must contain only lowercase letters, numbers, underscores, or periods")
+		}
+	}
+
+	if name[len(name)-1] == '.' {
+		return fmt.Errorf("Name must not end with a period")
+	}
+
 	return nil
 }
 
