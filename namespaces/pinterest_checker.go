@@ -2,6 +2,9 @@ package namespaces
 
 import "strings"
 
+// A username must contain only numbers and letters
+// Usernames should be 3 to 30 characters.
+
 type PinterestChecker struct{}
 
 func (i *PinterestChecker) GetId() int {
@@ -10,6 +13,10 @@ func (i *PinterestChecker) GetId() int {
 
 func (i *PinterestChecker) GetName() string {
 	return "Pinterest"
+}
+
+func (i *PinterestChecker) GetSeparateSymbols() []string {
+	return []string{}
 }
 
 func (i *PinterestChecker) PrepareName(name string) string {

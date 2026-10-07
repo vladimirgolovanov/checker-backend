@@ -20,6 +20,12 @@ func (i *DomainChecker) GetName() string {
 	return "Domain name"
 }
 
+func (i *DomainChecker) GetSeparateSymbols() []string {
+	return []string{
+		"-",
+	}
+}
+
 func (i *DomainChecker) PrepareName(name string) string {
 	return name
 }

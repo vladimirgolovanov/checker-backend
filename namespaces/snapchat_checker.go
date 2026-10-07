@@ -12,6 +12,10 @@ func (i *SnapchatChecker) GetName() string {
 	return "Snapchat"
 }
 
+func (i *SnapchatChecker) GetSeparateSymbols() []string {
+	return []string{}
+}
+
 func (i *SnapchatChecker) PrepareName(name string) string {
 	return name
 }

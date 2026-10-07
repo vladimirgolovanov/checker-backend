@@ -10,6 +10,10 @@ func (i *NpmChecker) GetName() string {
 	return "Npm"
 }
 
+func (i *NpmChecker) GetSeparateSymbols() []string {
+	return []string{}
+}
+
 func (i *NpmChecker) PrepareName(name string) string {
 	return name
 }

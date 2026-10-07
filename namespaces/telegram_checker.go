@@ -15,6 +15,10 @@ func (i *TelegramChecker) GetName() string {
 	return "Telegram"
 }
 
+func (i *TelegramChecker) GetSeparateSymbols() []string {
+	return []string{}
+}
+
 func (i *TelegramChecker) PrepareName(name string) string {
 	return name
 }

@@ -15,4 +15,5 @@ type Checker interface {
 	ValidateName(name string) error
 	GetId() int
 	GetName() string
+	GetSeparateSymbols() []string
 }

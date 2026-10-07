@@ -10,6 +10,10 @@ func (i *EtsyChecker) GetName() string {
 	return "Esty"
 }
 
+func (i *EtsyChecker) GetSeparateSymbols() []string {
+	return []string{}
+}
+
 func (i *EtsyChecker) PrepareName(name string) string {
 	return name
 }

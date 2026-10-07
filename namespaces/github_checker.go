@@ -10,6 +10,10 @@ func (i *GithubChecker) GetName() string {
 	return "Github"
 }
 
+func (i *GithubChecker) GetSeparateSymbols() []string {
+	return []string{}
+}
+
 func (i *GithubChecker) PrepareName(name string) string {
 	return name
 }

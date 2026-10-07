@@ -2,6 +2,11 @@ package namespaces
 
 import "strings"
 
+// Usernames can't contain numbers only
+// Only lowercase letters, numbers, underscores, or periods are allowed
+// Usernames can't end with a period
+// min 2, max 24
+
 type TiktokChecker struct{}
 
 func (i *TiktokChecker) GetId() int {
@@ -10,6 +15,13 @@ func (i *TiktokChecker) GetId() int {
 
 func (i *TiktokChecker) GetName() string {
 	return "Tiktok"
+}
+
+func (i *TiktokChecker) GetSeparateSymbols() []string {
+	return []string{
+		"_",
+		".",
+	}
 }
 
 func (i *TiktokChecker) PrepareName(name string) string {

@@ -22,12 +22,14 @@ type NamespaceRequest struct {
 
 type pendingItem struct {
 	NamespaceID int    `json:"namespace_id"`
+	Name        string `json:"name"`
 	Result      int    `json:"result"`
 	Params      string `json:"params,omitempty"`
 }
 
 type resultItem struct {
 	NamespaceID int    `json:"namespace_id"`
+	Name        string `json:"name"`
 	Result      int    `json:"result"`
 	Params      string `json:"params,omitempty"`
 }
@@ -88,21 +90,43 @@ func CheckNameHandler(registry map[int]func(map[string]interface{}) []namespaces
 			}
 			checkers := factory(ns.Params)
 			for _, checker := range checkers {
-				name = checker.PrepareName(name)
-				item := pendingItem{
-					NamespaceID: ns.ID,
-					Result:      int(namespaces.StatusPending),
+				names := namespaces.GetVariants(name, checker)
+
+				for _, name := range names {
+					item := pendingItem{
+						NamespaceID: ns.ID,
+						Name:        name,
+						Result:      int(namespaces.StatusPending),
+					}
+
+					if dc, ok := checker.(*namespaces.DomainChecker); ok {
+						item.Params = dc.Zone
+					}
+
+					pending = append(pending, item)
+					tasks = append(tasks, checkerTask{
+						checker:      checker,
+						ns:           ns,
+						preparedName: name,
+						params:       item.Params,
+					})
 				}
-				if dc, ok := checker.(*namespaces.DomainChecker); ok {
-					item.Params = dc.Zone
-				}
-				pending = append(pending, item)
-				tasks = append(tasks, checkerTask{
-					checker:      checker,
-					ns:           ns,
-					preparedName: name,
-					params:       item.Params,
-				})
+
+				// name = checker.PrepareName(name)
+				// item := pendingItem{
+				// 	NamespaceID: ns.ID,
+				// 	Result:      int(namespaces.StatusPending),
+				// }
+				// if dc, ok := checker.(*namespaces.DomainChecker); ok {
+				// 	item.Params = dc.Zone
+				// }
+				// pending = append(pending, item)
+				// tasks = append(tasks, checkerTask{
+				// 	checker:      checker,
+				// 	ns:           ns,
+				// 	preparedName: name,
+				// 	params:       item.Params,
+				// })
 			}
 		}
 
@@ -119,20 +143,21 @@ func CheckNameHandler(registry map[int]func(map[string]interface{}) []namespaces
 		var wg sync.WaitGroup
 
 		for _, task := range tasks {
-			if err := task.checker.ValidateName(task.preparedName); err != nil {
-				writeSSEEvent(w, "validation_error", validationErrorItem{
-					NamespaceID: task.ns.ID,
-					Errors:      err.Error(),
-				})
-				flusher.Flush()
-				continue
-			}
+			// if err := task.checker.ValidateName(task.preparedName); err != nil {
+			// 	writeSSEEvent(w, "validation_error", validationErrorItem{
+			// 		NamespaceID: task.ns.ID,
+			// 		Errors:      err.Error(),
+			// 	})
+			// 	flusher.Flush()
+			// 	continue
+			// }
 			wg.Add(1)
 			go func(t checkerTask) {
 				defer wg.Done()
 				status := t.checker.Check(t.preparedName, t.ns.Params)
 				resultCh <- resultItem{
 					NamespaceID: t.ns.ID,
+					Name:        t.preparedName,
 					Result:      int(status),
 					Params:      t.params,
 				}

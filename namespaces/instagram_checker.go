@@ -8,6 +8,8 @@ import (
 	grab_instagram "github.com/vladimirgolovanov/grab-proto/gen/instagram"
 )
 
+// Usernames can only include numbers, letters, underscores and periods
+
 type InstagramChecker struct {
 	client grab_instagram.InstagramClient
 }
@@ -22,6 +24,10 @@ func (i *InstagramChecker) GetId() int {
 
 func (i *InstagramChecker) GetName() string {
 	return "Instagram"
+}
+
+func (i *InstagramChecker) GetSeparateSymbols() []string {
+	return []string{}
 }
 
 func (i *InstagramChecker) PrepareName(name string) string {
