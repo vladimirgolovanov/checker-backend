@@ -21,13 +21,13 @@ func TestValidateName(t *testing.T) {
 
 	// Name with invalid characters
 	err = checker.ValidateName("invalid!")
-	if err == nil || err.Error() != "Name may consist only of a-z, 0-9, and underscores" {
+	if err == nil || err.Error() != "Name may consist only letters, numbers and underscores" {
 		t.Errorf("expected error for invalid characters, but got %v", err)
 	}
 
 	// Name with valid length but invalid characters
 	err = checker.ValidateName("name$with$")
-	if err == nil || err.Error() != "Name may consist only of a-z, 0-9, and underscores" {
+	if err == nil || err.Error() != "Name may consist only letters, numbers and underscores" {
 		t.Errorf("expected error for invalid characters in name, but got %v", err)
 	}
 }
