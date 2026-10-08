@@ -35,6 +35,7 @@ var CheckerRegistry = map[int]func(params map[string]interface{}) []namespaces.C
 	10: single(&namespaces.TelegramBotChecker{}),
 	11: single(&namespaces.EtsyChecker{}),
 	12: single(&namespaces.PinterestChecker{}),
+	13: single(&namespaces.YoutubeChecker{}),
 }
 
 func single(c namespaces.Checker) func(map[string]interface{}) []namespaces.Checker {
