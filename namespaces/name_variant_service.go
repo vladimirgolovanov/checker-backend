@@ -13,6 +13,8 @@ func GetBaseSeparator() string {
 }
 
 func GetVariants(name string, checker Checker) ([]string, []error) {
+	name = checker.PrepareName(name)
+
 	names := []string{}
 	baseSaparator := GetBaseSeparator()
 	separates := GetSaparateSymbols()
@@ -23,7 +25,6 @@ func GetVariants(name string, checker Checker) ([]string, []error) {
 			name = strings.ReplaceAll(name, symbol, baseSaparator)
 		}
 	}
-	name = checker.PrepareName(name)
 	if containSaparates {
 		separateSymbols := checker.GetSeparateSymbols()
 		for _, separateSymbol := range separateSymbols {

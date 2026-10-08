@@ -1,5 +1,10 @@
 package namespaces
 
+import (
+	"fmt"
+	"unicode"
+)
+
 type EtsyChecker struct{}
 
 func (i *EtsyChecker) GetId() int {
@@ -11,16 +16,28 @@ func (i *EtsyChecker) GetName() string {
 }
 
 func (i *EtsyChecker) GetSeparateSymbols() []string {
-	return []string{}
+	return []string{
+		"_",
+	}
 }
 
 func (i *EtsyChecker) PrepareName(name string) string {
 	return name
 }
 
-// если содержит a-z, 0-9, _ и длиной от 4 до 20 символов
-// если нет, то возвращаем ошибку
+// a-z, 0-9, _
+// min 4, max 20
 func (i *EtsyChecker) ValidateName(name string) error {
+	if len(name) < 4 || len(name) > 20 {
+		return fmt.Errorf("Name must be between 4 and 20 characters")
+	}
+
+	for _, c := range name {
+		if !unicode.IsLower(c) && !unicode.IsDigit(c) && c != '_' {
+			return fmt.Errorf("Name must contain only lowercase letters, numbers, or underscores")
+		}
+	}
+
 	return nil
 }
 

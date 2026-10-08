@@ -1,5 +1,11 @@
 package namespaces
 
+import (
+	"fmt"
+	"regexp"
+	"strings"
+)
+
 type GithubChecker struct{}
 
 func (i *GithubChecker) GetId() int {
@@ -15,10 +21,26 @@ func (i *GithubChecker) GetSeparateSymbols() []string {
 }
 
 func (i *GithubChecker) PrepareName(name string) string {
-	return name
+	return strings.ToLower(strings.TrimSpace(name))
 }
 
+// Username may only contain alphanumeric characters or single hyphens, and cannot begin or end with a hyphen.
+// maximum is 39 characters
+var githubNameRe = regexp.MustCompile(`^[a-z0-9]([a-z0-9-]*[a-z0-9])?$`)
+
 func (i *GithubChecker) ValidateName(name string) error {
+	if len(name) > 39 {
+		return fmt.Errorf("Name must be less than 40 characters")
+	}
+
+	if !githubNameRe.MatchString(name) {
+		return fmt.Errorf("Name must contain only letters, numbers, or hyphens, and cannot begin or end with a hyphen")
+	}
+
+	if strings.Contains(name, "--") {
+		return fmt.Errorf("Name must not contain consecutive hyphens")
+	}
+
 	return nil
 }
 

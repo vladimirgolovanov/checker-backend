@@ -16,11 +16,13 @@ func (i *TelegramBotChecker) GetName() string {
 }
 
 func (i *TelegramBotChecker) GetSeparateSymbols() []string {
-	return []string{}
+	return []string{
+		"_",
+	}
 }
 
 func (i *TelegramBotChecker) PrepareName(name string) string {
-	return name + "bot"
+	return strings.ToLower(strings.TrimSpace(name)) + "_bot"
 }
 
 func (i *TelegramBotChecker) ValidateName(name string) error {
@@ -37,7 +39,7 @@ func (i *TelegramBotChecker) ValidateName(name string) error {
 	// only a-z, 0-9, _
 	for _, c := range name {
 		if !((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_') {
-			return errors.New("Name may consist only of a-z, 0-9, and underscores")
+			return errors.New("Name may consist only letters, numbers and underscores")
 		}
 	}
 

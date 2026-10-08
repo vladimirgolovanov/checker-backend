@@ -3,6 +3,7 @@ package namespaces
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	grab_instagram "github.com/vladimirgolovanov/grab-proto/gen/instagram"
@@ -31,7 +32,7 @@ func (i *InstagramChecker) GetSeparateSymbols() []string {
 }
 
 func (i *InstagramChecker) PrepareName(name string) string {
-	return name
+	return strings.ToLower(strings.TrimSpace(name))
 }
 
 func (i *InstagramChecker) ValidateName(name string) error {

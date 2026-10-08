@@ -16,11 +16,13 @@ func (i *TelegramChecker) GetName() string {
 }
 
 func (i *TelegramChecker) GetSeparateSymbols() []string {
-	return []string{}
+	return []string{
+		"_",
+	}
 }
 
 func (i *TelegramChecker) PrepareName(name string) string {
-	return name
+	return strings.ToLower(strings.TrimSpace(name))
 }
 
 // Usernames are case-insensitive, must be at least 5-characters long, and may consist only of a-z, 0–9, and underscores.
@@ -31,7 +33,7 @@ func (i *TelegramChecker) ValidateName(name string) error {
 
 	for _, c := range name {
 		if !((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_') {
-			return errors.New("Name may consist only of a-z, 0-9, and underscores")
+			return errors.New("Name may consist only letters, numbers and underscores")
 		}
 	}
 

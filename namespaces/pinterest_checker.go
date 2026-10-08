@@ -1,6 +1,10 @@
 package namespaces
 
-import "strings"
+import (
+	"fmt"
+	"regexp"
+	"strings"
+)
 
 // A username must contain only numbers and letters
 // Usernames should be 3 to 30 characters.
@@ -20,10 +24,23 @@ func (i *PinterestChecker) GetSeparateSymbols() []string {
 }
 
 func (i *PinterestChecker) PrepareName(name string) string {
-	return name
+	return strings.ToLower(strings.TrimSpace(name))
 }
 
+// Usernames should be 3 to 30 characters.
+// A username must contain only numbers and letters
+// A username must have at least one letter
+var pinterestNameRe = regexp.MustCompile(`^[a-zA-Z0-9]*[a-zA-Z][a-zA-Z0-9]*$`)
+
 func (i *PinterestChecker) ValidateName(name string) error {
+	if len(name) < 3 || len(name) > 30 {
+		return fmt.Errorf("Name must be between 3 and 30 characters")
+	}
+
+	if !pinterestNameRe.MatchString(name) {
+		return fmt.Errorf("Name must contain only letters and numbers, and have at least one letter")
+	}
+
 	return nil
 }
 
