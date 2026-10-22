@@ -1,19 +1,19 @@
 module github.com/vladimirgolovanov/checker-backend
 
-go 1.25.0
+go 1.27.3
 
 require (
-	github.com/getsentry/sentry-go v0.29.0
+	github.com/getsentry/sentry-go v0.50.0
 	github.com/joho/godotenv v1.5.1
 	github.com/likexian/whois v1.15.7
 	github.com/vladimirgolovanov/grab-proto v0.1.1
-	google.golang.org/grpc v1.80.0
+	google.golang.org/grpc v1.84.0
 )
 
 require (
-	golang.org/x/net v0.52.0 // indirect
-	golang.org/x/sys v0.42.0 // indirect
-	golang.org/x/text v0.35.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20260120221211-b8f7ae30c516 // indirect
-	google.golang.org/protobuf v1.36.11 // indirect
+	golang.org/x/net v0.61.0 // indirect
+	golang.org/x/sys v0.49.0 // indirect
+	golang.org/x/text v0.43.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20261019180522-ce908d29299b // indirect
+	google.golang.org/protobuf v1.36.12 // indirect
 )
