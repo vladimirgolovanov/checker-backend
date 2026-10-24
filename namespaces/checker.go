@@ -1,5 +1,7 @@
 package namespaces
 
+import "context"
+
 type CheckStatus int
 
 const (
@@ -7,12 +9,11 @@ const (
 	StatusUsed
 	StatusPending
 	StatusFailed
-	StatusValidationError
 )
 
 type Checker interface {
 	PrepareName(name string) string
-	Check(name string, params map[string]interface{}) CheckStatus
+	Check(ctx context.Context, name string, params map[string]interface{}) CheckStatus
 	ValidateName(name string) error
 	GetId() int
 	GetName() string

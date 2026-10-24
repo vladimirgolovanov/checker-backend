@@ -1,9 +1,11 @@
 package namespaces
 
 import (
+	"context"
 	"fmt"
 	"regexp"
 	"strings"
+	"time"
 )
 
 type YoutubeChecker struct{}
@@ -50,8 +52,11 @@ func (i *YoutubeChecker) ValidateName(name string) error {
 	return nil
 }
 
-func (i *YoutubeChecker) Check(name string, params map[string]interface{}) CheckStatus {
-	resp, status := Get("https://www.youtube.com/@"+name, nil)
+func (i *YoutubeChecker) Check(ctx context.Context, name string, params map[string]interface{}) CheckStatus {
+	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
+	defer cancel()
+
+	resp, status := Get(ctx, "https://www.youtube.com/@"+name, nil)
 	if status != 0 {
 		return status
 	}

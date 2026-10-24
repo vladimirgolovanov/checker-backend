@@ -1,9 +1,11 @@
 package namespaces
 
 import (
+	"context"
 	"fmt"
 	"regexp"
 	"strings"
+	"time"
 )
 
 type GithubChecker struct{}
@@ -44,8 +46,11 @@ func (i *GithubChecker) ValidateName(name string) error {
 	return nil
 }
 
-func (i *GithubChecker) Check(name string, params map[string]interface{}) CheckStatus {
-	resp, status := Get("https://github.com/"+name, nil)
+func (i *GithubChecker) Check(ctx context.Context, name string, params map[string]interface{}) CheckStatus {
+	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
+	defer cancel()
+
+	resp, status := Get(ctx, "https://github.com/"+name, nil)
 	if status != 0 {
 		return status
 	}

@@ -1,6 +1,7 @@
 package namespaces
 
 import (
+	"context"
 	"io"
 	"net/http"
 	"net/url"
@@ -16,7 +17,7 @@ type HttpResponse struct {
 	Body       []byte
 }
 
-func Get(rawURL string, headers map[string]string) (*HttpResponse, CheckStatus) {
+func Get(ctx context.Context, rawURL string, headers map[string]string) (*HttpResponse, CheckStatus) {
 	parsedURL, err := url.Parse(rawURL)
 	if err != nil {
 		return nil, StatusFailed

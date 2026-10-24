@@ -1,9 +1,11 @@
 package namespaces
 
 import (
+	"context"
 	"fmt"
 	"regexp"
 	"strings"
+	"time"
 )
 
 // A username must contain only numbers and letters
@@ -44,8 +46,11 @@ func (i *PinterestChecker) ValidateName(name string) error {
 	return nil
 }
 
-func (i *PinterestChecker) Check(name string, params map[string]interface{}) CheckStatus {
-	resp, status := Get("https://www.pinterest.com/"+name+"/", nil)
+func (i *PinterestChecker) Check(ctx context.Context, name string, params map[string]interface{}) CheckStatus {
+	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
+	defer cancel()
+
+	resp, status := Get(ctx, "https://www.pinterest.com/"+name+"/", nil)
 	if status != 0 {
 		return status
 	}

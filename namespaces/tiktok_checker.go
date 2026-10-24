@@ -1,8 +1,10 @@
 package namespaces
 
 import (
+	"context"
 	"fmt"
 	"strings"
+	"time"
 	"unicode"
 )
 
@@ -50,8 +52,11 @@ func (i *TiktokChecker) ValidateName(name string) error {
 	return nil
 }
 
-func (i *TiktokChecker) Check(name string, params map[string]interface{}) CheckStatus {
-	resp, status := Get("https://www.tiktok.com/@"+name, nil)
+func (i *TiktokChecker) Check(ctx context.Context, name string, params map[string]interface{}) CheckStatus {
+	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
+	defer cancel()
+
+	resp, status := Get(ctx, "https://www.tiktok.com/@"+name, nil)
 	if status != 0 {
 		return status
 	}

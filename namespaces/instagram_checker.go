@@ -39,8 +39,8 @@ func (i *InstagramChecker) ValidateName(name string) error {
 	return nil
 }
 
-func (i *InstagramChecker) Check(name string, params map[string]interface{}) CheckStatus {
-	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+func (i *InstagramChecker) Check(ctx context.Context, name string, params map[string]interface{}) CheckStatus {
+	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 
 	stream, err := i.client.CheckUsername(ctx, &grab_instagram.CheckUsernameRequest{

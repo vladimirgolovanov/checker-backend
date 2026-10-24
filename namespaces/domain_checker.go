@@ -1,9 +1,11 @@
 package namespaces
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/likexian/whois"
 )
@@ -52,7 +54,10 @@ func (i *DomainChecker) ValidateName(name string) error {
 	return nil
 }
 
-func (i *DomainChecker) Check(name string, params map[string]interface{}) CheckStatus {
+func (i *DomainChecker) Check(ctx context.Context, name string, params map[string]interface{}) CheckStatus {
+	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
+	defer cancel()
+
 	domainName := name + "." + i.Zone
 
 	output, err := whois.Whois(domainName)

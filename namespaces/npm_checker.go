@@ -1,9 +1,11 @@
 package namespaces
 
 import (
+	"context"
 	"fmt"
 	"regexp"
 	"strings"
+	"time"
 )
 
 type NpmChecker struct{}
@@ -47,8 +49,11 @@ func (i *NpmChecker) ValidateName(name string) error {
 	return nil
 }
 
-func (i *NpmChecker) Check(name string, params map[string]interface{}) CheckStatus {
-	resp, status := Get("https://www.npmjs.com/package/"+name, nil)
+func (i *NpmChecker) Check(ctx context.Context, name string, params map[string]interface{}) CheckStatus {
+	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
+	defer cancel()
+
+	resp, status := Get(ctx, "https://www.npmjs.com/package/"+name, nil)
 	if status != 0 {
 		return status
 	}

@@ -1,8 +1,10 @@
 package namespaces
 
 import (
+	"context"
 	"errors"
 	"strings"
+	"time"
 )
 
 type TelegramBotChecker struct{}
@@ -51,8 +53,11 @@ func (i *TelegramBotChecker) ValidateName(name string) error {
 	return nil
 }
 
-func (i *TelegramBotChecker) Check(name string, params map[string]interface{}) CheckStatus {
-	resp, status := Get("https://t.me/"+name, nil)
+func (i *TelegramBotChecker) Check(ctx context.Context, name string, params map[string]interface{}) CheckStatus {
+	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
+	defer cancel()
+
+	resp, status := Get(ctx, "https://t.me/"+name, nil)
 	if status != 0 {
 		return status
 	}

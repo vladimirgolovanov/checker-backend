@@ -1,9 +1,11 @@
 package namespaces
 
 import (
+	"context"
 	"fmt"
 	"regexp"
 	"strings"
+	"time"
 )
 
 type SnapchatChecker struct{}
@@ -64,8 +66,11 @@ func (i *SnapchatChecker) ValidateName(name string) error {
 	return nil
 }
 
-func (i *SnapchatChecker) Check(name string, params map[string]interface{}) CheckStatus {
-	resp, status := Get("https://www.snapchat.com/add/"+name, nil)
+func (i *SnapchatChecker) Check(ctx context.Context, name string, params map[string]interface{}) CheckStatus {
+	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
+	defer cancel()
+
+	resp, status := Get(ctx, "https://www.snapchat.com/add/"+name, nil)
 	if status != 0 {
 		return status
 	}

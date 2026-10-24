@@ -79,6 +79,8 @@ func CheckNameHandler(registry map[int]func(map[string]interface{}) []namespaces
 		}
 		name := strings.ToLower(req.Name)
 
+		ctx := r.Context()
+
 		// Pass 1: build pending list and task list sequentially
 		var pending []pendingItem
 		var tasks []checkerTask
@@ -143,7 +145,7 @@ func CheckNameHandler(registry map[int]func(map[string]interface{}) []namespaces
 			wg.Add(1)
 			go func(t checkerTask) {
 				defer wg.Done()
-				status := t.checker.Check(t.preparedName, t.ns.Params)
+				status := t.checker.Check(ctx, t.preparedName, t.ns.Params)
 				resultCh <- resultItem{
 					NamespaceID: t.ns.ID,
 					Name:        t.preparedName,
