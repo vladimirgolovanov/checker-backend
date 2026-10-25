@@ -8,7 +8,13 @@ import (
 	"time"
 )
 
-type YoutubeChecker struct{}
+type YoutubeChecker struct {
+	fetcher Fetcher
+}
+
+func NewYoutubeChecker(f Fetcher) *YoutubeChecker {
+	return &YoutubeChecker{fetcher: f}
+}
 
 func (i *YoutubeChecker) GetId() int {
 	return 13
@@ -56,7 +62,7 @@ func (i *YoutubeChecker) Check(ctx context.Context, name string, params map[stri
 	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
 	defer cancel()
 
-	resp, status := Get(ctx, "https://www.youtube.com/@"+name, nil)
+	resp, status := i.fetcher.Get(ctx, "https://www.youtube.com/@"+name, nil)
 	if status != 0 {
 		return status
 	}

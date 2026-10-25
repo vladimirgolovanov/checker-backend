@@ -13,7 +13,13 @@ import (
 // Usernames can't end with a period
 // min 2, max 24
 
-type TiktokChecker struct{}
+type TiktokChecker struct {
+	fetcher Fetcher
+}
+
+func NewTiktokChecker(f Fetcher) *TiktokChecker {
+	return &TiktokChecker{fetcher: f}
+}
 
 func (i *TiktokChecker) GetId() int {
 	return 5
@@ -56,7 +62,7 @@ func (i *TiktokChecker) Check(ctx context.Context, name string, params map[strin
 	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
 	defer cancel()
 
-	resp, status := Get(ctx, "https://www.tiktok.com/@"+name, nil)
+	resp, status := i.fetcher.Get(ctx, "https://www.tiktok.com/@"+name, nil)
 	if status != 0 {
 		return status
 	}

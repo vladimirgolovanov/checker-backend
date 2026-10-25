@@ -7,7 +7,13 @@ import (
 	"time"
 )
 
-type TelegramBotChecker struct{}
+type TelegramBotChecker struct {
+	fetcher Fetcher
+}
+
+func NewTelegramBotChecker(f Fetcher) *TelegramBotChecker {
+	return &TelegramBotChecker{fetcher: f}
+}
 
 func (i *TelegramBotChecker) GetId() int {
 	return 10
@@ -57,7 +63,7 @@ func (i *TelegramBotChecker) Check(ctx context.Context, name string, params map[
 	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
 	defer cancel()
 
-	resp, status := Get(ctx, "https://t.me/"+name, nil)
+	resp, status := i.fetcher.Get(ctx, "https://t.me/"+name, nil)
 	if status != 0 {
 		return status
 	}

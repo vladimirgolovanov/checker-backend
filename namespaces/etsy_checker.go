@@ -7,14 +7,20 @@ import (
 	"unicode"
 )
 
-type EtsyChecker struct{}
+type EtsyChecker struct {
+	fetcher Fetcher
+}
+
+func NewEtsyChecker(f Fetcher) *EtsyChecker {
+	return &EtsyChecker{fetcher: f}
+}
 
 func (i *EtsyChecker) GetId() int {
 	return 11
 }
 
 func (i *EtsyChecker) GetName() string {
-	return "Esty"
+	return "Etsy"
 }
 
 func (i *EtsyChecker) GetSeparateSymbols() []string {
@@ -47,7 +53,7 @@ func (i *EtsyChecker) Check(ctx context.Context, name string, params map[string]
 	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
 	defer cancel()
 
-	resp, status := Get(ctx, "https://www.etsy.com/shop/"+name, nil)
+	resp, status := i.fetcher.Get(ctx, "https://www.etsy.com/shop/"+name, nil)
 	if status != 0 {
 		return status
 	}

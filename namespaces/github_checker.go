@@ -8,7 +8,13 @@ import (
 	"time"
 )
 
-type GithubChecker struct{}
+type GithubChecker struct {
+	fetcher Fetcher
+}
+
+func NewGithubChecker(f Fetcher) *GithubChecker {
+	return &GithubChecker{fetcher: f}
+}
 
 func (i *GithubChecker) GetId() int {
 	return 8
@@ -50,7 +56,7 @@ func (i *GithubChecker) Check(ctx context.Context, name string, params map[strin
 	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
 	defer cancel()
 
-	resp, status := Get(ctx, "https://github.com/"+name, nil)
+	resp, status := i.fetcher.Get(ctx, "https://github.com/"+name, nil)
 	if status != 0 {
 		return status
 	}

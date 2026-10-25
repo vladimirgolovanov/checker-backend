@@ -8,7 +8,13 @@ import (
 	"time"
 )
 
-type NpmChecker struct{}
+type NpmChecker struct {
+	fetcher Fetcher
+}
+
+func NewNpmChecker(f Fetcher) *NpmChecker {
+	return &NpmChecker{fetcher: f}
+}
 
 func (i *NpmChecker) GetId() int {
 	return 7
@@ -53,7 +59,7 @@ func (i *NpmChecker) Check(ctx context.Context, name string, params map[string]i
 	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
 	defer cancel()
 
-	resp, status := Get(ctx, "https://www.npmjs.com/package/"+name, nil)
+	resp, status := i.fetcher.Get(ctx, "https://www.npmjs.com/package/"+name, nil)
 	if status != 0 {
 		return status
 	}

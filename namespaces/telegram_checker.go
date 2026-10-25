@@ -7,7 +7,13 @@ import (
 	"time"
 )
 
-type TelegramChecker struct{}
+type TelegramChecker struct {
+	fetcher Fetcher
+}
+
+func NewTelegramChecker(f Fetcher) *TelegramChecker {
+	return &TelegramChecker{fetcher: f}
+}
 
 func (i *TelegramChecker) GetId() int {
 	return 9
@@ -46,11 +52,13 @@ func (i *TelegramChecker) Check(ctx context.Context, name string, params map[str
 	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
 	defer cancel()
 
-	resp, status := Get(ctx, "https://t.me/"+name, nil)
+	resp, status := i.fetcher.Get(ctx, "https://t.me/"+name, nil)
 	if status != 0 {
 		return status
 	}
 
+	// if name is free Telegram: Contact @... is displayed
+	// if name is used there is no Telegram: Contact field
 	if strings.Contains(string(resp.Body), "<meta property=\"twitter:title\" content=\"Telegram: Contact @") {
 		return StatusFree
 	}

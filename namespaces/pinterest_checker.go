@@ -11,7 +11,13 @@ import (
 // A username must contain only numbers and letters
 // Usernames should be 3 to 30 characters.
 
-type PinterestChecker struct{}
+type PinterestChecker struct {
+	fetcher Fetcher
+}
+
+func NewPinterestChecker(f Fetcher) *PinterestChecker {
+	return &PinterestChecker{fetcher: f}
+}
 
 func (i *PinterestChecker) GetId() int {
 	return 12
@@ -50,7 +56,7 @@ func (i *PinterestChecker) Check(ctx context.Context, name string, params map[st
 	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
 	defer cancel()
 
-	resp, status := Get(ctx, "https://www.pinterest.com/"+name+"/", nil)
+	resp, status := i.fetcher.Get(ctx, "https://www.pinterest.com/"+name+"/", nil)
 	if status != 0 {
 		return status
 	}

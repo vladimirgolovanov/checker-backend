@@ -1,10 +1,24 @@
 package namespaces
 
 import (
+	"context"
 	"testing"
 )
 
-func TestValidateName(t *testing.T) {
+func TestTelegramCheck(t *testing.T) {
+	fetcher := &stubFetcher{
+		resp: &HttpResponse{
+			Body:       []byte(`<meta property="twitter:title" content="Telegram: Contact @asdf">`),
+			StatusCode: 200,
+		},
+	}
+	got := NewTelegramChecker(fetcher).Check(context.Background(), "asdf", nil)
+	if got != StatusFree {
+		t.Errorf("ChFree() = %v, want %v", got, StatusFree)
+	}
+}
+
+func TestTelegramValidateName(t *testing.T) {
 	checker := TelegramChecker{}
 
 	// Valid name

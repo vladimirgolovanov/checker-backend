@@ -8,7 +8,13 @@ import (
 	"time"
 )
 
-type SnapchatChecker struct{}
+type SnapchatChecker struct {
+	fetcher Fetcher
+}
+
+func NewSnapchatChecker(f Fetcher) *SnapchatChecker {
+	return &SnapchatChecker{fetcher: f}
+}
 
 func (i *SnapchatChecker) GetId() int {
 	return 6
@@ -70,7 +76,7 @@ func (i *SnapchatChecker) Check(ctx context.Context, name string, params map[str
 	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
 	defer cancel()
 
-	resp, status := Get(ctx, "https://www.snapchat.com/add/"+name, nil)
+	resp, status := i.fetcher.Get(ctx, "https://www.snapchat.com/add/"+name, nil)
 	if status != 0 {
 		return status
 	}

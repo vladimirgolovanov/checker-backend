@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/getsentry/sentry-go"
 	"github.com/joho/godotenv"
@@ -43,13 +44,16 @@ func main() {
 	}
 	defer conn.Close()
 
-	CheckerRegistry[0] = single(namespaces.NewInstagramChecker(grab_instagram.NewInstagramClient(conn)))
+	registry := NewCheckerRegistry(Deps{
+		InstagramClient: grab_instagram.NewInstagramClient(conn),
+		Fetcher:         namespaces.NewHTTPFetcher(&http.Client{Timeout: 5 * time.Second}),
+	})
 
 	appHost := os.Getenv("APP_HOST")
 	if appHost == "" {
 		appHost = "0.0.0.0:8080"
 	}
 
-	http.HandleFunc("/api/check_name", handlers.CheckNameHandler(CheckerRegistry))
+	http.HandleFunc("/api/check_name", handlers.CheckNameHandler(registry))
 	log.Fatal(http.ListenAndServe(appHost, nil))
 }

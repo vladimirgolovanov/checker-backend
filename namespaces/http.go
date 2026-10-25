@@ -5,11 +5,18 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"time"
 )
 
-var httpClient = &http.Client{
-	Timeout: 5 * time.Second,
+type Fetcher interface {
+	Get(ctx context.Context, rawURL string, headers map[string]string) (*HttpResponse, CheckStatus)
+}
+
+type HTTPFetcher struct {
+	client *http.Client
+}
+
+func NewHTTPFetcher(client *http.Client) *HTTPFetcher {
+	return &HTTPFetcher{client: client}
 }
 
 type HttpResponse struct {
@@ -17,7 +24,7 @@ type HttpResponse struct {
 	Body       []byte
 }
 
-func Get(ctx context.Context, rawURL string, headers map[string]string) (*HttpResponse, CheckStatus) {
+func (f *HTTPFetcher) Get(ctx context.Context, rawURL string, headers map[string]string) (*HttpResponse, CheckStatus) {
 	parsedURL, err := url.Parse(rawURL)
 	if err != nil {
 		return nil, StatusFailed
@@ -38,7 +45,7 @@ func Get(ctx context.Context, rawURL string, headers map[string]string) (*HttpRe
 		req.Header.Set(k, v)
 	}
 
-	response, err := httpClient.Do(req)
+	response, err := f.client.Do(req)
 	if err != nil {
 		if isTimeout(err) {
 			return nil, StatusPending
