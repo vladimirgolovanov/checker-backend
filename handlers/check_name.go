@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -54,7 +55,7 @@ func writeSSEEvent(w http.ResponseWriter, event string, data any) {
 	fmt.Fprintf(w, "event: %s\ndata: %s\n\n", event, b)
 }
 
-func CheckNameHandler(registry map[int]func(map[string]interface{}) []namespaces.Checker) http.HandlerFunc {
+func CheckNameHandler(ctx context.Context, registry map[int]func(map[string]interface{}) []namespaces.Checker) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "Only POST requests are allowed", http.StatusMethodNotAllowed)
@@ -78,8 +79,6 @@ func CheckNameHandler(registry map[int]func(map[string]interface{}) []namespaces
 			return
 		}
 		name := strings.ToLower(req.Name)
-
-		ctx := r.Context()
 
 		// Pass 1: build pending list and task list sequentially
 		var pending []pendingItem

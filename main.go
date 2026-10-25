@@ -1,10 +1,13 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/getsentry/sentry-go"
@@ -18,6 +21,9 @@ import (
 )
 
 func main() {
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
 	if err := godotenv.Load(); err != nil {
 		log.Printf("No .env file found, using environment variables")
 	}
@@ -54,6 +60,20 @@ func main() {
 		appHost = "0.0.0.0:8080"
 	}
 
-	http.HandleFunc("/api/check_name", handlers.CheckNameHandler(registry))
-	log.Fatal(http.ListenAndServe(appHost, nil))
+	http.HandleFunc("/api/check_name", handlers.CheckNameHandler(ctx, registry))
+	srv := &http.Server{Addr: appHost}
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Printf("server error: %s", err)
+		}
+	}()
+
+	<-ctx.Done()
+
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := srv.Shutdown(shutdownCtx); err != nil {
+		log.Printf("shutdown error: %s", err)
+	}
 }
