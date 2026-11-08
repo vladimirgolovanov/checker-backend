@@ -2,9 +2,7 @@ package namespaces
 
 import (
 	"context"
-	"fmt"
 	"strings"
-	"time"
 
 	grab_instagram "github.com/vladimirgolovanov/grab-proto/gen/instagram"
 )
@@ -40,31 +38,36 @@ func (i *InstagramChecker) ValidateName(name string) error {
 }
 
 func (i *InstagramChecker) Check(ctx context.Context, name string, params map[string]interface{}) CheckStatus {
-	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
-	defer cancel()
+	return StatusFailed
+	// todo
 
-	stream, err := i.client.CheckUsername(ctx, &grab_instagram.CheckUsernameRequest{
-		Usernames: []string{name},
-	})
-	if err != nil {
-		fmt.Println(err)
-		return StatusPending
-	}
-
-	resp, err := stream.Recv()
-	if err != nil {
-		fmt.Println(err)
-		return StatusFailed
-	}
-
-	if resp.Error != "" {
-		fmt.Println(resp.Error)
-		return StatusFailed
-	}
-
-	if resp.Exists {
-		return StatusUsed
-	}
-
-	return StatusFree
+	// ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	// defer cancel()
+	//
+	//	stream, err := i.client.CheckUsername(ctx, &grab_instagram.CheckUsernameRequest{
+	//		Usernames: []string{name},
+	//	})
+	//
+	//	if err != nil {
+	//		fmt.Println(err)
+	//		return StatusPending
+	//	}
+	//
+	// resp, err := stream.Recv()
+	//
+	//	if err != nil {
+	//		fmt.Println(err)
+	//		return StatusFailed
+	//	}
+	//
+	//	if resp.Error != "" {
+	//		fmt.Println(resp.Error)
+	//		return StatusFailed
+	//	}
+	//
+	//	if resp.Exists {
+	//		return StatusUsed
+	//	}
+	//
+	// return StatusFree
 }
